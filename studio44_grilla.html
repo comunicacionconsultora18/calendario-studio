@@ -27,14 +27,12 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .logo{font-size:18px;font-weight:900;letter-spacing:-0.5px;}
 .logo em{color:var(--studio44);font-style:normal;}
 .hdr-right{display:flex;align-items:center;gap:12px;}
-.btn-reset{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;transition:all .2s;}
 .btn-gcal-hdr{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s;}
 .btn-gcal-hdr:hover{border-color:var(--drpujol);color:var(--drpujol);}
 .btn-gcal-hdr.connected{border-color:var(--drpujol);color:var(--drpujol);background:rgba(16,185,129,.08);}
 .btn-gcal-hdr.connected:hover{background:rgba(239,68,68,.08);border-color:var(--germank);color:var(--germank);}
 .gcal-sync-dot{width:6px;height:6px;border-radius:50%;background:var(--drpujol);display:inline-block;margin-left:4px;animation:gcalpulse 2s infinite;}
 @keyframes gcalpulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-.btn-reset:hover{border-color:var(--germank);color:var(--germank);}
 
 /* MONTH TABS */
 .tabs{display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);}
@@ -271,7 +269,7 @@ tr.custom-row > td:first-child{border-left:2px solid #FBBF24;}
   .hdr{padding:10px 14px;}
   .logo{font-size:14px;}
   .hdr-right{gap:6px;}
-  .btn-gcal-hdr,.btn-reset{padding:4px 8px;font-size:10px;}
+  .btn-gcal-hdr{padding:4px 8px;font-size:10px;}
   #save-toast{display:none!important;}
   .panel{padding:12px 10px 60px;}
   .filters{padding:8px 10px;}
@@ -316,7 +314,6 @@ tr.custom-row > td:first-child{border-left:2px solid #FBBF24;}
     <button id="gcal-btn" class="btn-gcal-hdr" title="Conectar Google Calendar">📅 Conectar GCal</button>
     <span id="sheet-status" style="font-size:11px;display:none;"></span>
     <span id="save-toast" style="font-size:11px;color:var(--pub);display:none;">✓ Guardado</span>
-    <button class="btn-reset" onclick="confirmReset()">Reiniciar estados</button>
   </div>
 </div>
 
@@ -825,9 +822,12 @@ async function gcalDelete(rowId){
 
 // ─── GOOGLE SHEETS PERSISTENCE ───────────────────────────────────────────────
 const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets';
+// Sheet fijo y compartido — todos los dispositivos leen/escriben en esta misma planilla
+// (debe tener una pestaña llamada "Data"). Si se deja vacío, cada navegador crea su propia copia privada.
+const SHARED_SHEET_ID = '1mm25j_dDfBm33bP-Bhy1akwQV5kNpDwgF0a4fY6qC2M';
 
-function getSavedSheetId(){ try{ return localStorage.getItem('s44_sheet_id')||''; }catch(e){ return ''; } }
-function saveSheetId(id){ try{ localStorage.setItem('s44_sheet_id', id); }catch(e){} }
+function getSavedSheetId(){ if(SHARED_SHEET_ID) return SHARED_SHEET_ID; try{ return localStorage.getItem('s44_sheet_id')||''; }catch(e){ return ''; } }
+function saveSheetId(id){ if(SHARED_SHEET_ID) return; try{ localStorage.setItem('s44_sheet_id', id); }catch(e){} }
 
 async function sheetsGetOrCreate(){
   let sid = getSavedSheetId();
@@ -1332,28 +1332,6 @@ function renderLinkCell(id, url){
   }
 }
 
-// ─── RESET ────────────────────────────────────────────────────────────────────
-function confirmReset(){
-  showConfirm({
-    icon: '🔄',
-    title: 'Reiniciar estados del mes',
-    body: `¿Reiniciar todos los estados de ${MONTHS[curMonth].label} a Pendiente?\n\nEsto también restaurará las filas que hayas eliminado.`,
-    okLabel: 'Sí, reiniciar',
-    okCls: 'warn',
-    onOk: ()=>{
-      MONTHS[curMonth].weeks.flatMap(w=>w.rows.map(r=>r.id)).forEach(id=>{
-        setState(id,'pend');
-        setDeleted(id,false);
-      });
-      getCustomRows(curMonth).forEach(r=>setState(r.id,'pend'));
-      renderMonth(curMonth);
-      updateProgress();
-      applyFilters();
-      showSaveToast();
-    }
-  });
-}
-
 // ─── CUSTOM ROWS (IMPROVISTOS) ────────────────────────────────────────────────
 function getCustomRows(mKey){ try{ return JSON.parse(localStorage.getItem('s44_custom_'+mKey)||'[]'); }catch(e){ return []; } }
 function saveCustomRows(mKey,rows){ try{ localStorage.setItem('s44_custom_'+mKey,JSON.stringify(rows)); }catch(e){} }
@@ -1444,8 +1422,8 @@ function deleteRow(id){
     icon: isPub ? '⚠️' : '🗑',
     title: isPub ? 'Fila ya publicada — ¿eliminás de todas formas?' : 'Eliminar fila de la grilla',
     body: isPub
-      ? 'Esta fila ya está marcada como PUBLICADA.\nEl contenido seguirá publicado en la red, pero desaparecerá del calendario.\n\nPodés restaurarla con "Reiniciar estados".'
-      : 'Esta fila se eliminará de la grilla.\nPodés restaurarla en cualquier momento con "Reiniciar estados".',
+      ? 'Esta fila ya está marcada como PUBLICADA.\nEl contenido seguirá publicado en la red, pero desaparecerá del calendario.'
+      : 'Esta fila se eliminará de la grilla.',
     okLabel: isPub ? 'Sí, eliminar igual' : 'Eliminar',
     okCls: isPub ? 'warn' : 'danger',
     onOk: ()=>{
