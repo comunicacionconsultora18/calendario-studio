@@ -665,10 +665,15 @@ let gcalToken = null;
 let gcalTokenExp = 0;
 let gcalTokenClient = null;
 
-function gcalOnAuthed(){
+function gcalSyncAfterAuth(){
   updateGCalUI();
   sheetsLoad().then(loaded=>{
-    if(loaded){ renderMonth('sep'); renderMonth('oct'); updateProgress(); applyFilters(); }
+    if(loaded){
+      renderMonth('sep'); renderMonth('oct'); updateProgress(); applyFilters();
+    } else {
+      // Sheet has nothing yet — push whatever is already loaded locally so it starts persisting
+      sheetsSave();
+    }
     updateSheetUI(getSavedSheetId());
   });
 }
@@ -681,12 +686,7 @@ function gcalInit(){
   }catch(e){}
   updateGCalUI();
   // If we have a token, load data from Sheets before rendering
-  if(gcalHasToken()){
-    sheetsLoad().then(loaded=>{
-      if(loaded){ renderMonth('sep'); renderMonth('oct'); updateProgress(); applyFilters(); }
-      updateSheetUI(getSavedSheetId());
-    });
-  }
+  if(gcalHasToken()) gcalSyncAfterAuth();
 }
 
 function gcalHasToken(){ return !!gcalToken && Date.now()<gcalTokenExp-30000; }
@@ -705,7 +705,7 @@ function gcalGetTokenClient(){
       gcalToken = resp.access_token;
       gcalTokenExp = Date.now() + parseInt(resp.expires_in||'3600',10)*1000;
       try{ localStorage.setItem('s44_gcal_auth', JSON.stringify({token:gcalToken, exp:gcalTokenExp})); }catch(ex){}
-      gcalOnAuthed();
+      gcalSyncAfterAuth();
     }
   });
   return gcalTokenClient;
@@ -866,20 +866,39 @@ async function sheetsErrorFrom(r, context){
   }
 }
 
+// Claves que NUNCA se sincronizan al Sheet:
+// - s44_gcal_auth guarda el access_token vivo — nunca debe quedar escrito en un
+//   Sheet compartido, cualquiera con acceso podría usarlo para actuar como el usuario.
+// - s44_sheet_id es puramente local (aquí usamos SHARED_SHEET_ID en su lugar).
+const SHEET_SKIP_KEYS = new Set(['s44_gcal_auth', 's44_sheet_id']);
+
+function collectSheetRows(){
+  const data = {};
+  try{
+    for(let i=0; i<localStorage.length; i++){
+      const k = localStorage.key(i);
+      if(k && k.startsWith('s44_') && !SHEET_SKIP_KEYS.has(k)) data[k] = localStorage.getItem(k);
+    }
+  }catch(e){}
+  return Object.keys(data).sort().map(k=>[k, data[k]]);
+}
+
 async function sheetsLoad(){
   if(!gcalHasToken()) return false;
   const sid = getSavedSheetId() || await sheetsGetOrCreate();
   if(!sid) return false;
   try{
-    const r = await fetch(`${SHEETS_API}/${sid}/values/Data!A1`,{
+    const r = await fetch(`${SHEETS_API}/${sid}/values/Data!A2:B`,{
       headers:{'Authorization':'Bearer '+gcalToken}
     });
     if(r.status===401){ gcalToken=null; updateGCalUI(); return false; }
     if(!r.ok){ await sheetsErrorFrom(r, 'load'); return false; }
     const d = await r.json();
-    if(d.values && d.values[0] && d.values[0][0]){
-      const data = JSON.parse(d.values[0][0]);
-      Object.keys(data).forEach(k=>{ try{ localStorage.setItem(k, data[k]); }catch(ex){} });
+    if(d.values && d.values.length){
+      d.values.forEach(row=>{
+        const [k,v] = row;
+        if(k && !SHEET_SKIP_KEYS.has(k)) try{ localStorage.setItem(k, v||''); }catch(ex){}
+      });
       return true;
     }
   }catch(e){ console.error('[Sheets] load threw:', e); }
@@ -893,18 +912,17 @@ function sheetsSave(){
   _sheetSaveTimer = setTimeout(async ()=>{
     const sid = await sheetsGetOrCreate();
     if(!sid) return;
-    const data = {};
+    const rows = [['Key','Value'], ...collectSheetRows()];
     try{
-      for(let i=0; i<localStorage.length; i++){
-        const k = localStorage.key(i);
-        if(k && k.startsWith('s44_')) data[k] = localStorage.getItem(k);
-      }
-    }catch(e){ return; }
-    try{
+      // Limpiar antes de escribir para que las claves borradas no queden como filas viejas colgadas
+      await fetch(`${SHEETS_API}/${sid}/values/Data!A:B:clear`,{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+gcalToken}
+      });
       const r = await fetch(`${SHEETS_API}/${sid}/values/Data!A1?valueInputOption=RAW`,{
         method:'PUT',
         headers:{'Authorization':'Bearer '+gcalToken,'Content-Type':'application/json'},
-        body: JSON.stringify({ values:[[JSON.stringify(data)]] })
+        body: JSON.stringify({ values: rows })
       });
       if(r.status===401){ gcalToken=null; updateGCalUI(); }
       else if(r.ok){ const d = await r.json(); console.log('[Sheets] save OK →', d); updateSheetUI(sid, true); }
