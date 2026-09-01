@@ -1,0 +1,1559 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grilla S44">
+<meta name="theme-color" content="#0A0A0F">
+<meta name="description" content="Grilla Maestra de Calendarización — Studio44">
+<title>Studio44 — Grilla Maestra</title>
+<style>
+:root{
+  --bg:#0A0A0F;--surface:#12121A;--surface2:#1A1A26;--surface3:#22223A;
+  --border:#252535;--text:#F0F0F5;--muted:#7070A0;--muted2:#50507A;
+  --anpower:#FF6600;--gemza:#F0A500;--studio44:#A855F7;--s44exec:#0EA5E9;
+  --germank:#EF4444;--drpujol:#10B981;--gamboa:#F59E0B;
+  --pend:#44445A;--proc:#D97706;--pub:#059669;
+  --reel:#3B82F6;--placa:#6B7280;--carrusel:#6366F1;--flyer:#F97316;
+  --ig:#E1306C;--tt:#69C9D0;--li:#60A5FA;
+  --alcance:#3B82F6;--educativo:#06B6D4;--autoridad:#8B5CF6;--conversion:#10B981;
+  --radius:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.5;min-height:100vh;}
+
+/* HEADER */
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.logo{font-size:18px;font-weight:900;letter-spacing:-0.5px;}
+.logo em{color:var(--studio44);font-style:normal;}
+.hdr-right{display:flex;align-items:center;gap:12px;}
+.btn-reset{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;transition:all .2s;}
+.btn-gcal-hdr{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s;}
+.btn-gcal-hdr:hover{border-color:var(--drpujol);color:var(--drpujol);}
+.btn-gcal-hdr.connected{border-color:var(--drpujol);color:var(--drpujol);background:rgba(16,185,129,.08);}
+.btn-gcal-hdr.connected:hover{background:rgba(239,68,68,.08);border-color:var(--germank);color:var(--germank);}
+.gcal-sync-dot{width:6px;height:6px;border-radius:50%;background:var(--drpujol);display:inline-block;margin-left:4px;animation:gcalpulse 2s infinite;}
+@keyframes gcalpulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.btn-reset:hover{border-color:var(--germank);color:var(--germank);}
+
+/* MONTH TABS */
+.tabs{display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);}
+.tab{padding:10px 28px;cursor:pointer;font-weight:700;font-size:13px;color:var(--muted);border-bottom:3px solid transparent;transition:all .2s;user-select:none;}
+.tab.active{color:var(--studio44);border-bottom-color:var(--studio44);}
+.tab:hover:not(.active){color:var(--text);}
+
+/* PROGRESS BAR */
+.progress-wrap{padding:18px 28px;background:var(--surface2);border-bottom:1px solid var(--border);}
+.progress-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.prog-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);min-width:70px;}
+.prog-bar-bg{flex:1;min-width:120px;height:6px;background:var(--surface3);border-radius:99px;overflow:hidden;}
+.prog-bar-fill{height:100%;border-radius:99px;background:var(--pub);transition:width .4s ease;}
+.prog-counts{display:flex;gap:14px;flex-wrap:wrap;}
+.prog-chip{display:flex;align-items:center;gap:6px;font-size:11px;white-space:nowrap;}
+.prog-dot{width:7px;height:7px;border-radius:50%;}
+.prog-num{font-weight:700;}
+
+/* FILTERS */
+.filters{padding:10px 28px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--border);}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.filter-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;min-width:60px;flex-shrink:0;}
+.fbtn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .2s;user-select:none;}
+.fbtn.active{border-color:currentColor;}
+.fbtn[data-f="all"].active{color:var(--text);}
+.fbtn[data-f="pend"].active{color:#9CA3AF;border-color:#9CA3AF;}
+.fbtn[data-f="proc"].active{color:var(--proc);border-color:var(--proc);}
+.fbtn[data-f="pub"].active{color:var(--pub);border-color:var(--pub);}
+.fbtn[data-d].active{color:var(--s44exec);border-color:var(--s44exec);}
+.fbtn[data-fm].active{color:var(--studio44);border-color:var(--studio44);}
+.sep-client{width:1px;height:20px;background:var(--border);}
+.fbtn.client-btn.active-c{opacity:1;}
+.fbtn.client-btn{opacity:.55;}
+
+/* PANEL */
+.panel{display:none;padding:20px 28px 60px;}
+.panel.active{display:block;}
+
+/* WEEK */
+.week-block{margin-bottom:28px;}
+.week-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);padding:6px 0 8px;border-bottom:1px solid var(--border);margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.week-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(239,68,68,.15);color:var(--germank);}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;}
+th{background:var(--surface);color:var(--muted2);font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:700;white-space:nowrap;}
+td{padding:0;border-bottom:1px solid var(--border);vertical-align:middle;}
+.row-inner{display:flex;align-items:stretch;gap:0;}
+tr.hidden{display:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+tr.is-pub td{background:rgba(5,150,105,.04);}
+tr.is-proc td{background:rgba(217,119,6,.04);}
+
+/* STATUS CELL */
+.status-cell{width:36px;min-width:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-right:1px solid var(--border);user-select:none;transition:background .15s;}
+.status-cell:hover{background:rgba(255,255,255,.06);}
+.status-icon{width:20px;height:20px;border-radius:50%;border:2px solid var(--pend);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s;background:transparent;}
+.st-pend .status-icon{border-color:var(--pend);}
+.st-proc .status-icon{border-color:var(--proc);background:rgba(217,119,6,.2);}
+.st-pub .status-icon{border-color:var(--pub);background:var(--pub);}
+
+/* DATA CELLS */
+.td-date{padding:8px 10px;white-space:nowrap;min-width:88px;}
+.date-d{font-weight:700;font-size:12px;cursor:text;border-radius:4px;padding:2px 4px;margin:-2px -4px;transition:background .15s;outline:none;display:inline-block;}
+.date-d:hover{background:var(--surface3);}
+.date-d[contenteditable="true"]{background:var(--surface3);box-shadow:0 0 0 2px var(--s44exec);}
+.date-w{font-size:10px;color:var(--muted2);}
+.time-d{font-size:11px;font-weight:600;color:var(--s44exec);cursor:text;border-radius:4px;padding:1px 5px;margin-top:3px;transition:background .15s;outline:none;display:inline-flex;align-items:center;gap:3px;}
+.time-d:hover{background:var(--surface3);}
+.time-d[contenteditable="true"]{background:var(--surface3);box-shadow:0 0 0 2px var(--s44exec);}
+.time-d.empty{color:var(--muted2);font-weight:400;font-style:italic;}
+.td-client{padding:8px 10px;min-width:110px;}
+.td-fmt{padding:8px 10px;white-space:nowrap;}
+.td-ch{padding:8px 10px;white-space:nowrap;}
+.td-title{padding:8px 10px;min-width:200px;max-width:340px;}
+.title-text{font-size:12px;font-weight:500;cursor:text;border-radius:4px;padding:2px 4px;margin:-2px -4px;transition:background .15s;outline:none;}
+.title-text:hover{background:var(--surface3);}
+.title-text[contenteditable="true"]{background:var(--surface3);box-shadow:0 0 0 2px var(--studio44);}
+.td-obj{padding:8px 10px;white-space:nowrap;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.b-anpower{background:rgba(255,102,0,.15);color:var(--anpower);}
+.b-gemza{background:rgba(240,165,0,.15);color:var(--gemza);}
+.b-studio44{background:rgba(168,85,247,.15);color:var(--studio44);}
+.b-s44exec{background:rgba(14,165,233,.15);color:var(--s44exec);}
+.b-germank{background:rgba(239,68,68,.15);color:var(--germank);}
+.b-drpujol{background:rgba(16,185,129,.15);color:var(--drpujol);}
+.b-gamboa{background:rgba(245,158,11,.15);color:var(--gamboa);}
+.b-reel{background:rgba(59,130,246,.15);color:var(--reel);}
+.b-placa{background:rgba(107,114,128,.15);color:#9CA3AF;}
+.b-carrusel{background:rgba(99,102,241,.15);color:var(--carrusel);}
+.b-flyer{background:rgba(249,115,22,.15);color:var(--flyer);}
+.b-ig{background:rgba(225,48,108,.15);color:var(--ig);}
+.b-tt{background:rgba(105,201,208,.15);color:var(--tt);}
+.b-li{background:rgba(96,165,250,.15);color:var(--li);}
+.b-alcance{background:rgba(59,130,246,.12);color:var(--alcance);}
+.b-educativo,.b-educacion{background:rgba(6,182,212,.12);color:var(--educativo);}
+.b-autoridad{background:rgba(139,92,246,.12);color:var(--autoridad);}
+.b-conversion{background:rgba(16,185,129,.12);color:var(--conversion);}
+.b-institucional{background:rgba(14,165,233,.12);color:#38BDF8;}
+.b-promocion{background:rgba(236,72,153,.12);color:#F472B6;}
+.b-efemerides{background:rgba(234,179,8,.12);color:#FDE047;}
+/* Editable badges */
+.editable-badge{cursor:pointer;transition:filter .15s;}
+.editable-badge:hover{filter:brightness(1.3);}
+.editable-badge .eico{opacity:.55;font-size:9px;margin-left:3px;}
+.b-story{background:rgba(168,85,247,.12);color:#C084FC;}
+.b-post{background:rgba(100,116,139,.12);color:#94A3B8;}
+.b-reunion{background:rgba(14,165,233,.18);color:#7DD3FC;}
+.b-accion{background:rgba(34,197,94,.15);color:#86EFAC;}
+.b-llamada{background:rgba(168,85,247,.15);color:#D8B4FE;}
+.b-entrega{background:rgba(249,115,22,.15);color:#FED7AA;}
+.b-seguimiento{background:rgba(234,179,8,.15);color:#FDE68A;}
+.ch-wrap{display:flex;gap:3px;}
+
+/* STATUS PILL */
+.st-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.stp-pend{background:rgba(68,68,90,.25);color:#7070A0;}
+.stp-proc{background:rgba(217,119,6,.2);color:#FBBF24;}
+.stp-pub{background:rgba(5,150,105,.2);color:#34D399;}
+
+/* CLIENT PROGRESS */
+.client-prog-wrap{margin-bottom:28px;}
+.client-prog-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px;}
+.client-prog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.cp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;}
+.cp-name{font-size:12px;font-weight:700;margin-bottom:6px;}
+.cp-bar-bg{height:5px;background:var(--surface3);border-radius:99px;margin-bottom:6px;overflow:hidden;}
+.cp-bar-fill{height:100%;border-radius:99px;transition:width .4s;}
+.cp-nums{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);}
+.cp-nums span{font-weight:700;color:var(--text);}
+
+/* TOOLTIP for editable */
+.edit-hint{font-size:10px;color:var(--muted2);margin-top:2px;display:none;}
+tr:hover .edit-hint{display:block;}
+
+/* LINK COLUMN */
+.td-link{padding:6px 10px;min-width:150px;max-width:190px;}
+.link-empty{display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px dashed var(--border);border-radius:6px;color:var(--muted2);font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.link-empty:hover{border-color:var(--studio44);color:var(--studio44);}
+.link-filled{display:flex;align-items:center;gap:5px;}
+.link-open{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;background:rgba(168,85,247,.15);color:var(--studio44);font-size:11px;font-weight:600;text-decoration:none;border:1px solid rgba(168,85,247,.3);transition:all .2s;white-space:nowrap;}
+.link-open:hover{background:rgba(168,85,247,.3);}
+.link-del{background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;line-height:1;transition:color .15s;}
+.link-del:hover{color:var(--germank);}
+.link-input-wrap{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;}
+.link-input-wrap.open{display:flex;}
+.link-modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:480px;max-width:90vw;}
+.link-modal h3{font-size:14px;font-weight:700;margin-bottom:4px;}
+.link-modal p{font-size:11px;color:var(--muted);margin-bottom:14px;}
+.link-modal input{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;transition:border .2s;}
+.link-modal input:focus{border-color:var(--studio44);}
+.link-modal-btns{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}
+.btn-cancel{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:7px;cursor:pointer;font-size:12px;}
+.btn-save-link{background:var(--studio44);border:none;color:#fff;padding:7px 16px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;}
+.btn-save-link:hover{opacity:.85;}
+
+/* ADD ROW */
+.add-tfoot td{padding:0;border-top:1px dashed var(--border);}
+.add-row-trigger{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;color:var(--muted2);font-size:11px;cursor:pointer;transition:all .2s;}
+.add-row-trigger:hover{background:rgba(255,255,255,.04);color:var(--studio44);}
+.custom-row-mark{display:inline-block;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:700;background:rgba(245,158,11,.15);color:#FBBF24;letter-spacing:.4px;margin-top:2px;}
+.btn-del-row{background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:4px;line-height:1;transition:color .15s;flex-shrink:0;}
+.btn-del-row:hover{color:var(--germank);}
+.btn-del-row.del-pub{color:rgba(217,119,6,.65);}
+.btn-del-row.del-pub:hover{color:var(--proc);}
+
+/* CONFIRM MODAL */
+.btn-gcal{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:5px;font-size:13px;text-decoration:none;transition:background .15s;flex-shrink:0;}
+.btn-gcal:hover{background:rgba(16,185,129,.15);}
+.cfm-wrap{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;}
+.cfm-wrap.open{display:flex;}
+.cfm-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 28px 22px;width:420px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.cfm-icon{font-size:28px;margin-bottom:10px;}
+.cfm-title{font-size:15px;font-weight:800;margin-bottom:6px;line-height:1.3;}
+.cfm-body{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:20px;white-space:pre-line;}
+.cfm-btns{display:flex;gap:8px;justify-content:flex-end;}
+.cfm-cancel{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+.cfm-cancel:hover{border-color:var(--muted);color:var(--text);}
+.cfm-ok{border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;transition:opacity .2s;}
+.cfm-ok:hover{opacity:.85;}
+.cfm-ok.danger{background:var(--germank);color:#fff;}
+.cfm-ok.warn{background:var(--proc);color:#fff;}
+.cfm-ok.neutral{background:var(--studio44);color:#fff;}
+/* CALENDAR PICKER */
+.cal-header{display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.cal-month-label{font-size:12px;font-weight:800;color:var(--text);letter-spacing:.3px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-dow{font-size:9px;font-weight:700;text-align:center;color:var(--muted2);padding:3px 0;text-transform:uppercase;letter-spacing:.4px;}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;color:var(--text);}
+.cal-day:not(.cal-empty):not(.cal-wknd):hover{background:rgba(168,85,247,.15);color:var(--studio44);border-color:rgba(168,85,247,.3);}
+.cal-day.cal-selected{background:var(--studio44) !important;color:#fff !important;border-color:var(--studio44) !important;}
+.cal-day.cal-empty,.cal-day.cal-wknd{cursor:default;opacity:.3;}
+.cal-sel-display{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;margin-bottom:10px;font-size:12px;font-weight:700;transition:all .2s;}
+.cal-sel-display.empty{background:var(--surface3);border:1px dashed var(--border);color:var(--muted2);font-weight:400;}
+.cal-sel-display.picked{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:var(--studio44);}
+.cal-wrap{background:var(--surface3);border-radius:10px;padding:12px;}
+
+tr.custom-row td{border-left:0;}
+tr.custom-row > td:first-child{border-left:2px solid #FBBF24;}
+
+/* ADD MODAL */
+.add-modal-wrap{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;}
+.add-modal-wrap.open{display:flex;}
+.add-modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px;width:560px;max-width:92vw;max-height:90vh;overflow-y:auto;}
+.add-modal h3{font-size:15px;font-weight:800;margin-bottom:3px;}
+.add-modal .sub{font-size:11px;color:var(--muted);margin-bottom:18px;}
+.af-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.af-field{display:flex;flex-direction:column;gap:5px;}
+.af-field.full{grid-column:1/-1;}
+.af-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
+.af-field input,.af-field select,.af-field input[list]{background:var(--surface3);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;outline:none;transition:border .2s;font-family:inherit;width:100%;}
+.af-field input:focus,.af-field select:focus{border-color:var(--studio44);}
+.af-field select option{background:var(--surface3);}
+.af-field.err input{border-color:var(--germank);}
+.ch-chk-wrap{display:flex;gap:10px;flex-wrap:wrap;padding:4px 0;}
+.ch-chk{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;user-select:none;}
+.ch-chk input{accent-color:var(--studio44);width:14px;height:14px;}
+.add-note{font-size:10px;color:var(--muted2);margin-top:2px;}
+
+@media(max-width:768px){
+  .hdr,.tabs,.progress-wrap,.filters,.panel{padding-left:12px;padding-right:12px;}
+  .filter-row{gap:6px;}
+  th,td{font-size:11px;}
+  .td-title{max-width:180px;}
+  .af-grid{grid-template-columns:1fr;}
+  .af-field.full{grid-column:1;}
+}
+
+/* ── MOBILE RESPONSIVE ────────────────────────────────────────────────────── */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+@media(max-width:768px){
+  .hdr{padding:10px 14px;}
+  .logo{font-size:14px;}
+  .hdr-right{gap:6px;}
+  .btn-gcal-hdr,.btn-reset{padding:4px 8px;font-size:10px;}
+  #save-toast{display:none!important;}
+  .panel{padding:12px 10px 60px;}
+  .filters{padding:8px 10px;}
+  .filter-label{min-width:40px;font-size:10px;}
+  .fbtn{padding:3px 8px;font-size:10px;}
+  .progress-wrap{padding:10px 14px;}
+  .week-hdr{font-size:10px;}
+  th{font-size:9px;padding:5px 6px;}
+  .td-date{min-width:70px;}
+  .td-client{min-width:80px;}
+  .td-fmt{min-width:70px;}
+  .td-ch{min-width:60px;}
+  .td-title{min-width:160px;max-width:220px;}
+  .title-text{font-size:11px;}
+  .edit-hint{display:none;}
+  .status-cell{width:28px;min-width:28px;}
+  .status-icon{width:16px;height:16px;font-size:8px;}
+  .add-row-trigger{font-size:11px;padding:8px;}
+  .tab{padding:8px 14px;font-size:12px;}
+}
+@media(max-width:480px){
+  .logo em{display:none;}
+  .prog-label{display:none;}
+  .filter-label{display:none;}
+  .sep-client{display:none;}
+  .td-ch{display:none;}
+}
+/* Install button */
+.btn-install{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.4);color:var(--studio44);padding:5px 13px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;transition:all .2s;display:none;}
+.btn-install:hover{background:rgba(168,85,247,.25);}
+.btn-install.visible{display:inline-flex;align-items:center;gap:5px;}
+</style>
+
+<!-- Google Identity Services: maneja el login OAuth por popup, sin redirect_uri -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">studio<em>44</em> &nbsp;·&nbsp; <span style="font-size:13px;font-weight:600;color:var(--muted)">Grilla Maestra Sep–Oct 2026</span></div>
+  <div class="hdr-right">
+    <button id="install-btn" class="btn-install" onclick="installApp()" title="Instalar como app">⬇ Instalar app</button>
+    <button id="gcal-btn" class="btn-gcal-hdr" title="Conectar Google Calendar">📅 Conectar GCal</button>
+    <span id="sheet-status" style="font-size:11px;display:none;"></span>
+    <span id="save-toast" style="font-size:11px;color:var(--pub);display:none;">✓ Guardado</span>
+    <button class="btn-reset" onclick="confirmReset()">Reiniciar estados</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchMonth('sep',this)">🗓 Septiembre 2026</div>
+  <div class="tab" onclick="switchMonth('oct',this)">🗓 Octubre 2026</div>
+</div>
+
+<!-- PROGRESS (dinámico) -->
+<div class="progress-wrap">
+  <div class="progress-row" style="margin-bottom:10px;">
+    <div class="prog-label" id="prog-month-label">SEP 2026</div>
+    <div class="prog-bar-bg"><div class="prog-bar-fill" id="prog-bar" style="width:0%"></div></div>
+    <div id="prog-pct" style="font-size:12px;font-weight:700;white-space:nowrap;">0 / 46</div>
+  </div>
+  <div class="prog-counts">
+    <div class="prog-chip"><div class="prog-dot" style="background:var(--pend)"></div><span>Pendiente: </span><span class="prog-num" id="cnt-pend">—</span></div>
+    <div class="prog-chip"><div class="prog-dot" style="background:var(--proc)"></div><span>En proceso: </span><span class="prog-num" id="cnt-proc">—</span></div>
+    <div class="prog-chip"><div class="prog-dot" style="background:var(--pub)"></div><span>Publicado: </span><span class="prog-num" id="cnt-pub">—</span></div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <div class="filter-row">
+    <span class="filter-label">Estado:</span>
+    <div class="fbtn active" data-f="all" onclick="setFilter('all',this)">Todos</div>
+    <div class="fbtn" data-f="pend" onclick="setFilter('pend',this)">○ Pendiente</div>
+    <div class="fbtn" data-f="proc" onclick="setFilter('proc',this)">◐ En proceso</div>
+    <div class="fbtn" data-f="pub" onclick="setFilter('pub',this)">● Publicado</div>
+    <div class="sep-client"></div>
+    <span class="filter-label">Cliente:</span>
+    <div class="fbtn client-btn active-c" data-c="all" onclick="setClient('all',this)">Todos</div>
+    <div class="fbtn client-btn" data-c="ANPOWER" onclick="setClient('ANPOWER',this)" style="color:var(--anpower)">ANPOWER</div>
+    <div class="fbtn client-btn" data-c="GEMZA" onclick="setClient('GEMZA',this)" style="color:var(--gemza)">GEMZA</div>
+    <div class="fbtn client-btn" data-c="STUDIO44" onclick="setClient('STUDIO44',this)" style="color:var(--studio44)">STUDIO44</div>
+    <div class="fbtn client-btn" data-c="GERMÁN K" onclick="setClient('GERMÁN K',this)" style="color:var(--germank)">GERMÁN K</div>
+    <div class="fbtn client-btn" data-c="DR. PUJOL" onclick="setClient('DR. PUJOL',this)" style="color:var(--drpujol)">DR. PUJOL</div>
+    <div class="fbtn client-btn" data-c="T. GAMBOA" onclick="setClient('T. GAMBOA',this)" style="color:var(--gamboa)">T. GAMBOA</div>
+    <div class="fbtn client-btn" data-c="S44/EJECUTIVO" onclick="setClient('S44/EJECUTIVO',this)" style="color:var(--s44exec)">S44/EJEC</div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Día:</span>
+    <div class="fbtn active" data-d="all" onclick="setDay('all',this)">Todos</div>
+    <div class="fbtn" data-d="Lun" onclick="setDay('Lun',this)">Lunes</div>
+    <div class="fbtn" data-d="Mar" onclick="setDay('Mar',this)">Martes</div>
+    <div class="fbtn" data-d="Mié" onclick="setDay('Mié',this)">Miércoles</div>
+    <div class="fbtn" data-d="Jue" onclick="setDay('Jue',this)">Jueves</div>
+    <div class="fbtn" data-d="Vie" onclick="setDay('Vie',this)">Viernes</div>
+    <div class="sep-client"></div>
+    <span class="filter-label">Formato:</span>
+    <div class="fbtn active" data-fm="all" onclick="setFmt('all',this)">Todos</div>
+    <div class="fbtn" data-fm="Reel" onclick="setFmt('Reel',this)">Reel</div>
+    <div class="fbtn" data-fm="Placa" onclick="setFmt('Placa',this)">Placa</div>
+    <div class="fbtn" data-fm="Carrusel" onclick="setFmt('Carrusel',this)">Carrusel</div>
+    <div class="fbtn" data-fm="Flyer" onclick="setFmt('Flyer',this)">Flyer</div>
+    <div class="fbtn" data-fm="Story" onclick="setFmt('Story',this)">Story</div>
+    <div class="fbtn" data-fm="Reunión" onclick="setFmt('Reunión',this)">Reunión</div>
+    <div class="fbtn" data-fm="Acción" onclick="setFmt('Acción',this)">Acción</div>
+    <div class="fbtn" data-fm="Entrega" onclick="setFmt('Entrega',this)">Entrega</div>
+    <div class="fbtn" data-fm="Seguimiento" onclick="setFmt('Seguimiento',this)">Seguimiento</div>
+  </div>
+</div>
+
+<!-- ADD ROW MODAL -->
+<div class="add-modal-wrap" id="add-modal" onclick="closeAddModal(event)">
+  <div class="add-modal">
+    <h3>⚡ Agregar contenido imprevisto</h3>
+    <div class="sub">Completá los datos del contenido que salió fuera de la grilla planificada.</div>
+    <div class="af-grid">
+      <div class="af-field full" id="af-date-wrap">
+        <label>Fecha</label>
+        <div class="cal-sel-display empty" id="af-date-display">Seleccioná un día del calendario</div>
+        <input type="hidden" id="af-date"/>
+        <div class="cal-wrap"><div id="af-cal-container"></div></div>
+      </div>
+      <div class="af-field">
+        <label>Cliente</label>
+        <select id="af-client" onchange="onAfClientChange()">
+          <option value="ANPOWER">ANPOWER</option>
+          <option value="GEMZA">GEMZA</option>
+          <option value="STUDIO44">STUDIO44</option>
+          <option value="S44/EJECUTIVO">S44/EJECUTIVO</option>
+          <option value="GERMÁN K">GERMÁN K</option>
+          <option value="DR. PUJOL">DR. PUJOL</option>
+          <option value="T. GAMBOA">T. GAMBOA</option>
+        </select>
+      </div>
+      <div class="af-field">
+        <label>Formato <span style="font-weight:400;text-transform:none;letter-spacing:0">(o escribí uno nuevo)</span></label>
+        <input type="text" id="af-fmt" list="fmt-opts" placeholder="Reel, Placa, Flyer…"/>
+        <datalist id="fmt-opts">
+          <option value="Reel"/>
+          <option value="Placa"/>
+          <option value="Carrusel"/>
+          <option value="Flyer"/>
+          <option value="Story"/>
+          <option value="Post"/>
+          <option value="Reunión"/>
+          <option value="Acción"/>
+          <option value="Llamada"/>
+          <option value="Entrega"/>
+          <option value="Seguimiento"/>
+        </datalist>
+      </div>
+      <div class="af-field">
+        <label>Objetivo</label>
+        <select id="af-obj">
+          <option>Institucional</option>
+          <option>Autoridad</option>
+          <option>Promoción</option>
+          <option>Educación</option>
+          <option>Efemérides</option>
+          <option>Alcance</option>
+          <option>Educativo</option>
+          <option>Conversión</option>
+        </select>
+      </div>
+      <div class="af-field" id="af-time-wrap" style="display:none;">
+        <label>⏰ Hora <span style="font-weight:400;text-transform:none;letter-spacing:0">(solo S44/EJECUTIVO)</span></label>
+        <input type="text" id="af-time" placeholder="Ej: 10:00 hs, 14:30 hs…"/>
+      </div>
+      <div class="af-field full">
+        <label>Canales</label>
+        <div class="ch-chk-wrap">
+          <label class="ch-chk"><input type="checkbox" id="af-ig" checked> Instagram (IG)</label>
+          <label class="ch-chk"><input type="checkbox" id="af-tt"> TikTok</label>
+          <label class="ch-chk"><input type="checkbox" id="af-li"> LinkedIn</label>
+        </div>
+      </div>
+      <div class="af-field full" id="af-title-wrap">
+        <label>Contenido / Título del posteo</label>
+        <input type="text" id="af-title" placeholder='"El contenido que surgió en el momento..."'/>
+      </div>
+      <div class="af-field full">
+        <label>Contexto del imprevisto <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+        <input type="text" id="af-note" placeholder="Ej: Cliente pidió urgente por evento del día"/>
+      </div>
+    </div>
+    <div class="link-modal-btns" style="margin-top:18px;">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancelar</button>
+      <button class="btn-save-link" onclick="confirmAddRow()">⚡ Agregar a la grilla</button>
+    </div>
+  </div>
+</div>
+
+<!-- LINK MODAL -->
+<div class="link-input-wrap" id="link-modal" onclick="closeLinkModal(event)">
+  <div class="link-modal">
+    <h3>🔗 Pegar link de publicación</h3>
+    <p id="link-modal-sub">Pegá la URL de la publicación en Instagram, TikTok o LinkedIn.</p>
+    <input type="url" id="link-input" placeholder="https://www.instagram.com/p/..." autocomplete="off"
+           onkeydown="if(event.key==='Enter') confirmLink()"/>
+    <div class="link-modal-btns">
+      <button class="btn-cancel" onclick="closeLinkModal()">Cancelar</button>
+      <button class="btn-save-link" onclick="confirmLink()">✓ Guardar link</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEPTIEMBRE PANEL -->
+<div class="panel active" id="panel-sep"></div>
+<!-- OCTUBRE PANEL -->
+<div class="panel" id="panel-oct"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="cfm-wrap" id="cfm-modal">
+  <div class="cfm-box">
+    <div class="cfm-icon" id="cfm-icon">🗑</div>
+    <div class="cfm-title" id="cfm-title">¿Confirmar acción?</div>
+    <div class="cfm-body" id="cfm-body"></div>
+    <div class="cfm-btns">
+      <button class="cfm-cancel" onclick="cfmClose()">Cancelar</button>
+      <button class="cfm-ok" id="cfm-ok" onclick="cfmConfirm()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const MONTHS = {
+  sep: {
+    label: 'SEP 2026',
+    weeks: [
+      { title: 'Semana 1 — Martes 1 al Viernes 4 de Septiembre', rows: [
+        {id:'s01',date:'Mar 1 Sep',client:'ANPOWER',fmt:'Reel',ch:['IG'],title:'"El error eléctrico que puede paralizar tu empresa"',obj:'Alcance'},
+        {id:'s02',date:'Mar 1 Sep',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"¿Cuándo cambiar el aceite de motor? La guía definitiva"',obj:'Educativo'},
+        {id:'s03',date:'Mié 2 Sep',client:'DR. PUJOL',fmt:'Reel',ch:['IG','TikTok'],title:'"¿Qué le pasa a tu cuerpo cuando no dormís bien?"',obj:'Alcance'},
+        {id:'s04',date:'Mié 2 Sep',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"¿Qué hace GEMZA? Presentación de servicios"',obj:'Autoridad'},
+        {id:'s05',date:'Jue 3 Sep',client:'STUDIO44',fmt:'Reel',ch:['IG','LinkedIn'],title:'"¿Qué es Studio44? Los 3 pilares de la consultora"',obj:'Alcance'},
+        {id:'s06',date:'Jue 3 Sep',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Factor de Potencia: el dato técnico que más dinero te cuesta ignorar"',obj:'Educativo'},
+        {id:'s07',date:'Vie 4 Sep',client:'GERMÁN K',fmt:'Reel',ch:['IG'],title:'"Mi visión sobre el liderazgo empresarial hoy"',obj:'Autoridad'},
+        {id:'s08',date:'Vie 4 Sep',client:'GEMZA',fmt:'Reel',ch:['IG','TikTok'],title:'"Así trabajamos en GEMZA: detrás de escena"',obj:'Alcance'},
+        {id:'s09',date:'Vie 4 Sep',client:'T. GAMBOA',fmt:'Reel',ch:['IG'],title:'"Señales de que tus frenos necesitan revisión YA"',obj:'Educativo'},
+        {id:'se1',date:'Vie 4 Sep',client:'S44/EJECUTIVO',fmt:'Reunión',ch:[],title:'Reunión de equipo — planning semanal',obj:'Institucional'},
+      ]},
+      { title: 'Semana 2 — Lunes 7 al Viernes 11 de Septiembre', rows: [
+        {id:'s10',date:'Lun 7 Sep',client:'STUDIO44',fmt:'Carrusel',ch:['IG','LinkedIn'],title:'"Los 3 pilares de Studio44: infografía completa"',obj:'Autoridad'},
+        {id:'s11',date:'Lun 7 Sep',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"El 60% de los accidentes eléctricos industriales son prevenibles"',obj:'Educativo'},
+        {id:'s12',date:'Mar 8 Sep',client:'DR. PUJOL',fmt:'Reel',ch:['IG','TikTok'],title:'"Alimentos que destruyen tu salud sin que lo sepas"',obj:'Educativo'},
+        {id:'s13',date:'Mar 8 Sep',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Frenos: checklist de revisión para el conductor"',obj:'Educativo'},
+        {id:'s14',date:'Mié 9 Sep',client:'GEMZA',fmt:'Reel',ch:['IG','TikTok'],title:'"¿Qué diferencia a GEMZA en el mercado?"',obj:'Autoridad'},
+        {id:'s15',date:'Mié 9 Sep',client:'ANPOWER',fmt:'Reel',ch:['IG'],title:'"Así se instala un tablero de control industrial: 48hs en 30 seg"',obj:'Autoridad'},
+        {id:'s16',date:'Jue 10 Sep',client:'GERMÁN K',fmt:'Reel',ch:['IG'],title:'"El error más común al comunicar un negocio (y cómo evitarlo)"',obj:'Educativo'},
+        {id:'s17',date:'Jue 10 Sep',client:'STUDIO44',fmt:'Reel',ch:['IG','LinkedIn'],title:'"Batching audiovisual: qué es y por qué transforma tu presupuesto"',obj:'Educativo'},
+        {id:'s18',date:'Jue 10 Sep',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Fluidos del auto: guía visual de colores y niveles"',obj:'Educativo'},
+        {id:'s19',date:'Vie 11 Sep',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Dato: empresas con estrategia crecen 3x más"',obj:'Autoridad'},
+        {id:'s20',date:'Vie 11 Sep',client:'T. GAMBOA',fmt:'Reel',ch:['IG'],title:'"El error más costoso que comete un conductor (y cómo evitarlo)"',obj:'Alcance'},
+        {id:'s21',date:'Vie 11 Sep',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Normativa IRAM: lo que toda empresa debe saber antes de que sea tarde"',obj:'Educativo'},
+        {id:'se2',date:'Mié 9 Sep',client:'S44/EJECUTIVO',fmt:'Seguimiento',ch:[],title:'Seguimiento de clientes activos — revisión de estados',obj:'Institucional'},
+      ]},
+      { title: 'Semana 3 — Lunes 14 al Viernes 18 de Septiembre', rows: [
+        {id:'s22',date:'Lun 14 Sep',client:'STUDIO44',fmt:'Carrusel',ch:['IG','LinkedIn'],title:'"¿Por qué contratar una consultora de comunicación? 5 razones reales"',obj:'Autoridad'},
+        {id:'s23',date:'Lun 14 Sep',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Portfolio GEMZA: proyecto destacado de septiembre"',obj:'Conversión'},
+        {id:'s24',date:'Lun 14 Sep',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Temperatura del motor: señales de alarma que no podés ignorar"',obj:'Educativo'},
+        {id:'s25',date:'Mar 15 Sep',client:'ANPOWER',fmt:'Reel',ch:['IG'],title:'"3 señales de alarma en tu instalación eléctrica"',obj:'Educativo'},
+        {id:'s26',date:'Mar 15 Sep',client:'DR. PUJOL',fmt:'Reel',ch:['IG','TikTok'],title:'"3 hábitos simples que pueden cambiar tu salud para siempre"',obj:'Conversión'},
+        {id:'s27',date:'Mié 16 Sep',client:'GEMZA',fmt:'Reel',ch:['IG','TikTok'],title:'"Caso de éxito GEMZA: cliente real, resultados reales"',obj:'Conversión'},
+        {id:'s28',date:'Mié 16 Sep',client:'GERMÁN K',fmt:'Reel',ch:['IG'],title:'"3 ideas de negocio que veo venir en los próximos años"',obj:'Alcance'},
+        {id:'s29',date:'Mié 16 Sep',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Neumáticos: cuándo es hora de cambiarlos (guía visual)"',obj:'Educativo'},
+        {id:'s30',date:'Jue 17 Sep',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Portfolio ANPOWER: proyecto industrial completado"',obj:'Conversión'},
+        {id:'s31',date:'Jue 17 Sep',client:'STUDIO44',fmt:'Reel',ch:['IG','LinkedIn'],title:'"Caso B2B: cómo transformamos la comunicación de un cliente industrial"',obj:'Autoridad'},
+        {id:'s32',date:'Vie 18 Sep',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Testimonio de cliente GEMZA: lo que cambió en su empresa"',obj:'Conversión'},
+        {id:'s33',date:'Vie 18 Sep',client:'T. GAMBOA',fmt:'Reel',ch:['IG'],title:'"Cómo preparar tu auto para la primavera 🌸"',obj:'Alcance'},
+        {id:'s34',date:'Vie 18 Sep',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Testimonio: 18 meses sin paradas eléctricas no programadas"',obj:'Conversión'},
+        {id:'se3',date:'Jue 17 Sep',client:'S44/EJECUTIVO',fmt:'Reunión',ch:[],title:'Reunión de avance — revisión de proyectos en curso',obj:'Institucional'},
+      ]},
+      { title: 'Semana 4 — Lunes 21 al Viernes 25 de Septiembre · 🌸 Día de la Primavera', rows: [
+        {id:'s35',date:'Lun 21 Sep',client:'DR. PUJOL',fmt:'Reel',ch:['IG','TikTok'],title:'"La verdad sobre los suplementos: ¿sirven o no? (La ciencia habla)"',obj:'Educativo'},
+        {id:'s36',date:'Lun 21 Sep',client:'STUDIO44',fmt:'Carrusel',ch:['IG','LinkedIn'],title:'"Resultados reales: nuestros clientes hablan por nosotros"',obj:'Conversión'},
+        {id:'s37',date:'Lun 21 Sep',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Primavera GEMZA: renovamos, crecemos, expandimos"',obj:'Alcance'},
+        {id:'s38',date:'Mar 22 Sep',client:'ANPOWER',fmt:'Reel',ch:['IG'],title:'"Eficiencia energética: cuánto podés ahorrar en tu planta industrial"',obj:'Conversión'},
+        {id:'s39',date:'Mar 22 Sep',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Primavera: checklist completo del auto antes de salir"',obj:'Educativo'},
+        {id:'s40',date:'Mar 22 Sep',client:'GERMÁN K',fmt:'Reel',ch:['IG'],title:'"Lo que nadie te dice sobre escalar un negocio (la verdad incómoda)"',obj:'Autoridad'},
+        {id:'s41',date:'Mié 23 Sep',client:'GEMZA',fmt:'Reel',ch:['IG','TikTok'],title:'"GEMZA: expansión, nuevos servicios y lo que viene"',obj:'Alcance'},
+        {id:'s42',date:'Mié 23 Sep',client:'T. GAMBOA',fmt:'Reel',ch:['IG'],title:'"Gamboa responde: las 5 preguntas más frecuentes de los clientes"',obj:'Educativo'},
+        {id:'s43',date:'Jue 24 Sep',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"3 datos de energía que todo empresario industrial debe conocer"',obj:'Educativo'},
+        {id:'s44',date:'Jue 24 Sep',client:'STUDIO44',fmt:'Reel',ch:['IG','LinkedIn'],title:'"Studio44 en acción: detrás de escena de un día de batching"',obj:'Alcance'},
+        {id:'s45',date:'Jue 24 Sep',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Batería del auto: 5 señales de que está por morir"',obj:'Educativo'},
+        {id:'s46',date:'Vie 25 Sep',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Cierre de septiembre: por qué elegir GEMZA para tu empresa"',obj:'Conversión'},
+        {id:'se4',date:'Vie 25 Sep',client:'S44/EJECUTIVO',fmt:'Entrega',ch:[],title:'Entrega de informes mensuales — cierre septiembre',obj:'Institucional'},
+      ]}
+    ]
+  },
+  oct: {
+    label: 'OCT 2026',
+    weeks: [
+      { title: 'Pre-Semana — Jueves 1 y Viernes 2 de Octubre', rows: [
+        {id:'o01',date:'Jue 1 Oct',client:'STUDIO44',fmt:'Reel',ch:['IG','LinkedIn'],title:'"E-commerce B2B: por qué tu empresa lo necesita en 2026"',obj:'Educativo'},
+        {id:'o02',date:'Jue 1 Oct',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Calidad de energía en verano: lo que toda industria debe saber"',obj:'Educativo'},
+        {id:'o03',date:'Vie 2 Oct',client:'GERMÁN K',fmt:'Reel',ch:['IG'],title:'"El liderazgo en tiempos de cambio: qué aprendí en 2026"',obj:'Autoridad'},
+        {id:'o04',date:'Vie 2 Oct',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"¿Qué servicios ofrece GEMZA para el Q4 2026?"',obj:'Autoridad'},
+        {id:'o05',date:'Vie 2 Oct',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Sistema de refrigeración: puntos clave para el verano"',obj:'Educativo'},
+        {id:'oe1',date:'Jue 1 Oct',client:'S44/EJECUTIVO',fmt:'Reunión',ch:[],title:'Kickoff octubre — reunión de arranque del mes',obj:'Institucional'},
+      ]},
+      { title: 'Semana 1 — Lunes 5 al Viernes 9 de Octubre', rows: [
+        {id:'o06',date:'Lun 5 Oct',client:'ANPOWER',fmt:'Reel',ch:['IG'],title:'"¿Qué es una auditoría eléctrica y por qué hacerla antes de fin de año?"',obj:'Educativo'},
+        {id:'o07',date:'Lun 5 Oct',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Aire acondicionado del auto: cómo saber si funciona bien"',obj:'Educativo'},
+        {id:'o08',date:'Mar 6 Oct',client:'DR. PUJOL',fmt:'Reel',ch:['IG','TikTok'],title:'"¿Por qué te cansás más en primavera? La ciencia lo explica"',obj:'Alcance'},
+        {id:'o09',date:'Mar 6 Oct',client:'GEMZA',fmt:'Reel',ch:['IG','TikTok'],title:'"GEMZA en el Q4: así preparamos a nuestros clientes para el cierre"',obj:'Conversión'},
+        {id:'o10',date:'Mié 7 Oct',client:'STUDIO44',fmt:'Carrusel',ch:['IG','LinkedIn'],title:'"E-commerce + Chatbots + Web: el trío que transforma tu negocio"',obj:'Autoridad'},
+        {id:'o11',date:'Mié 7 Oct',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Checklist de seguridad eléctrica para fin de año"',obj:'Educativo'},
+        {id:'o12',date:'Jue 8 Oct',client:'GERMÁN K',fmt:'Reel',ch:['IG'],title:'"Cómo preparo mi empresa para el cierre de año (mi proceso real)"',obj:'Autoridad'},
+        {id:'o13',date:'Jue 8 Oct',client:'T. GAMBOA',fmt:'Reel',ch:['IG'],title:'"Prepará tu auto para el verano: el checklist completo de Gamboa"',obj:'Alcance'},
+        {id:'o14',date:'Vie 9 Oct',client:'DR. PUJOL',fmt:'Reel',ch:['IG','TikTok'],title:'"Alergias de primavera: cómo prevenirlas con nutrición inteligente"',obj:'Educativo'},
+        {id:'o15',date:'Vie 9 Oct',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Dato: empresas con estrategia clara crecen 3x más en Q4"',obj:'Autoridad'},
+        {id:'o16',date:'Vie 9 Oct',client:'ANPOWER',fmt:'Reel',ch:['IG'],title:'"Instalaciones temporales para eventos de fin de año: riesgos ocultos"',obj:'Educativo'},
+        {id:'oe2',date:'Mié 7 Oct',client:'S44/EJECUTIVO',fmt:'Acción',ch:[],title:'Acciones prioritarias semana 1 — octubre',obj:'Institucional'},
+      ]},
+      { title: 'Semana 2 — Martes 13 al Viernes 16 de Octubre · ⚠ Lun 12 = Feriado', alert: true, rows: [
+        {id:'o17',date:'Mar 13 Oct',client:'STUDIO44',fmt:'Reel',ch:['IG','LinkedIn'],title:'"Chatbots para empresas: la herramienta que multiplica conversiones"',obj:'Educativo'},
+        {id:'o18',date:'Mar 13 Oct',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Cambio de filtros antes del verano: cuáles y cuándo"',obj:'Educativo'},
+        {id:'o19',date:'Mié 14 Oct',client:'GEMZA',fmt:'Reel',ch:['IG','TikTok'],title:'"Proceso de consultoría GEMZA: así trabajamos paso a paso"',obj:'Autoridad'},
+        {id:'o20',date:'Mié 14 Oct',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Portfolio ANPOWER: proyecto eléctrico completado — octubre 2026"',obj:'Conversión'},
+        {id:'o21',date:'Jue 15 Oct',client:'DR. PUJOL',fmt:'Reel',ch:['IG','TikTok'],title:'"El sol y la vitamina D: cuánto exponerse realmente (la respuesta médica)"',obj:'Educativo'},
+        {id:'o22',date:'Jue 15 Oct',client:'GERMÁN K',fmt:'Reel',ch:['IG'],title:'"La decisión más difícil que tomé como empresario y lo que aprendí"',obj:'Autoridad'},
+        {id:'o23',date:'Vie 16 Oct',client:'T. GAMBOA',fmt:'Reel',ch:['IG'],title:'"Aire acondicionado del auto: revisión esencial antes de enero"',obj:'Educativo'},
+        {id:'o24',date:'Vie 16 Oct',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Portfolio GEMZA: cliente del mes de octubre"',obj:'Conversión'},
+        {id:'o25',date:'Vie 16 Oct',client:'STUDIO44',fmt:'Carrusel',ch:['IG','LinkedIn'],title:'"¿Por qué el Q4 es el momento de invertir en comunicación?"',obj:'Autoridad'},
+        {id:'oe3',date:'Jue 15 Oct',client:'S44/EJECUTIVO',fmt:'Seguimiento',ch:[],title:'Seguimiento Q4 — revisión de avances y correcciones',obj:'Institucional'},
+      ]},
+      { title: 'Semana 3 — Lunes 19 al Viernes 23 de Octubre', rows: [
+        {id:'o26',date:'Lun 19 Oct',client:'ANPOWER',fmt:'Reel',ch:['IG'],title:'"Grupos electrógenos: mantenimiento esencial antes del verano"',obj:'Educativo'},
+        {id:'o27',date:'Lun 19 Oct',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Líquido de frenos: por qué se cambia aunque no se vea sucio"',obj:'Educativo'},
+        {id:'o28',date:'Mar 20 Oct',client:'GEMZA',fmt:'Reel',ch:['IG','TikTok'],title:'"¿Qué pasa cuando tu empresa no tiene una estrategia clara?"',obj:'Alcance'},
+        {id:'o29',date:'Mar 20 Oct',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Normativa de instalaciones eléctricas temporales para eventos"',obj:'Educativo'},
+        {id:'o30',date:'Mié 21 Oct',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Suspensión: 4 síntomas que no podés ignorar nunca"',obj:'Educativo'},
+        {id:'o31',date:'Mié 21 Oct',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Testimonio de cliente GEMZA: Q4 en números"',obj:'Conversión'},
+        {id:'o32',date:'Jue 22 Oct',client:'GERMÁN K',fmt:'Reel',ch:['IG'],title:'"Mi visión 2027: lo que viene para el sector empresarial"',obj:'Autoridad'},
+        {id:'o33',date:'Jue 22 Oct',client:'T. GAMBOA',fmt:'Reel',ch:['IG'],title:'"¿Cuánto cuesta NO mantener tu auto? El cálculo real"',obj:'Alcance'},
+        {id:'o34',date:'Vie 23 Oct',client:'STUDIO44',fmt:'Carrusel',ch:['IG','LinkedIn'],title:'"Studio44 en 2026: números, aprendizajes y logros del año"',obj:'Conversión'},
+        {id:'o35',date:'Vie 23 Oct',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"Testimonio: empresa de eventos confía en ANPOWER"',obj:'Conversión'},
+      ]},
+      { title: 'Semana 4 — Lunes 26 al Viernes 30 de Octubre', rows: [
+        {id:'o36',date:'Lun 26 Oct',client:'ANPOWER',fmt:'Reel',ch:['IG'],title:'"Planificá tu presupuesto eléctrico 2027: lo que necesitás saber ahora"',obj:'Conversión'},
+        {id:'o37',date:'Lun 26 Oct',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Check de pre-viaje: lo que Gamboa revisaría antes de salir de vacaciones"',obj:'Educativo'},
+        {id:'o38',date:'Mar 27 Oct',client:'DR. PUJOL',fmt:'Reel',ch:['IG','TikTok'],title:'"¿Ejercicio en ayunas funciona? La verdad médica sin vueltas"',obj:'Educativo'},
+        {id:'o39',date:'Mar 27 Oct',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Por qué el Q4 es el momento ideal para planificar tu estrategia 2027"',obj:'Alcance'},
+        {id:'o40',date:'Mié 28 Oct',client:'GEMZA',fmt:'Reel',ch:['IG','TikTok'],title:'"Resultados reales: lo que lograron nuestros clientes en 2026"',obj:'Conversión'},
+        {id:'o41',date:'Mié 28 Oct',client:'T. GAMBOA',fmt:'Flyer',ch:['IG'],title:'"Bujías: cuándo es el momento de cambiarlas (la guía honesta)"',obj:'Educativo'},
+        {id:'o42',date:'Jue 29 Oct',client:'STUDIO44',fmt:'Reel',ch:['IG','LinkedIn'],title:'"Studio44 en 2026: resultados, clientes y lo que viene en 2027"',obj:'Conversión'},
+        {id:'o43',date:'Jue 29 Oct',client:'ANPOWER',fmt:'Placa',ch:['IG'],title:'"3 datos del sector eléctrico industrial — Cierre Q3/Q4 2026"',obj:'Educativo'},
+        {id:'o44',date:'Vie 30 Oct',client:'T. GAMBOA',fmt:'Reel',ch:['IG'],title:'"Gamboa te explica: el mantenimiento que más ahorro te da a largo plazo"',obj:'Educativo'},
+        {id:'o45',date:'Vie 30 Oct',client:'GEMZA',fmt:'Placa',ch:['IG'],title:'"Cierre de octubre: GEMZA en números y visión 2027"',obj:'Conversión'},
+        {id:'o46',date:'Vie 30 Oct',client:'STUDIO44',fmt:'Placa',ch:['IG','LinkedIn'],title:'"Cierre Q4 Studio44: resultados y próximos pasos"',obj:'Conversión'},
+        {id:'oe4',date:'Jue 29 Oct',client:'S44/EJECUTIVO',fmt:'Entrega',ch:[],title:'Cierre Q4 — entrega de informes y balance anual',obj:'Institucional'},
+      ]}
+    ]
+  }
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const STATES = ['pend','proc','pub'];
+const STATE_LABELS = {pend:'Pendiente', proc:'En proceso', pub:'Publicado'};
+const STATE_ICONS  = {pend:'○', proc:'◐', pub:'●'};
+
+let curMonth = 'sep';
+let filterStatus = 'all';
+let filterClient = 'all';
+let filterDay    = 'all';
+let filterFmt    = 'all';
+let _linkTargetId = null;
+
+function getState(id){ try{ return localStorage.getItem('s44_'+id)||'pend'; }catch(e){ return 'pend'; } }
+function setState(id,st){ try{ localStorage.setItem('s44_'+id,st); }catch(e){} }
+function getTitle(id,def){ try{ return localStorage.getItem('s44_title_'+id)||def; }catch(e){ return def; } }
+function setTitle(id,v){ try{ localStorage.setItem('s44_title_'+id,v); }catch(e){} }
+function getLink(id){ try{ return localStorage.getItem('s44_link_'+id)||''; }catch(e){ return ''; } }
+function setLink(id,v){ try{ localStorage.setItem('s44_link_'+id,v); }catch(e){} }
+function getFmt(id,def){ try{ return localStorage.getItem('s44_fmt_'+id)||def; }catch(e){ return def; } }
+function setFmt(id,v){ try{ localStorage.setItem('s44_fmt_'+id,v); }catch(e){} }
+function getObj(id,def){ try{ return localStorage.getItem('s44_obj_'+id)||def; }catch(e){ return def; } }
+function setObj(id,v){ try{ localStorage.setItem('s44_obj_'+id,v); }catch(e){} }
+function getDateVal(id,def){ try{ return localStorage.getItem('s44_date_'+id)||def; }catch(e){ return def; } }
+function setDateVal(id,v){ try{ localStorage.setItem('s44_date_'+id,v); }catch(e){} }
+function getDeleted(id){ try{ return localStorage.getItem('s44_del_'+id)==='1'; }catch(e){ return false; } }
+function setDeleted(id,v){ try{ if(v) localStorage.setItem('s44_del_'+id,'1'); else localStorage.removeItem('s44_del_'+id); }catch(e){} }
+function getTime(id){ try{ return localStorage.getItem('s44_time_'+id)||''; }catch(e){ return ''; } }
+function setTime(id,v){ try{ localStorage.setItem('s44_time_'+id,v); }catch(e){} }
+
+// ─── GOOGLE CALENDAR INTEGRATION ──────────────────────────────────────────────
+const GCAL_CLIENT_ID = '781593303876-a1m1g4gkm2apofi0j4fl396qt6311b18.apps.googleusercontent.com';
+const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/spreadsheets';
+const GCAL_API   = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+const GCAL_COLORS = {'ANPOWER':'6','GEMZA':'5','STUDIO44':'3','S44/EJECUTIVO':'7','GERMÁN K':'11','DR. PUJOL':'2','TALLER GAMBOA':'5'};
+
+let gcalToken = null;
+let gcalTokenExp = 0;
+let gcalTokenClient = null;
+
+function gcalOnAuthed(){
+  updateGCalUI();
+  sheetsLoad().then(loaded=>{
+    if(loaded){ renderMonth('sep'); renderMonth('oct'); updateProgress(); applyFilters(); }
+    updateSheetUI(getSavedSheetId());
+  });
+}
+
+function gcalInit(){
+  try{
+    // Restore saved token from localStorage
+    const stored = JSON.parse(localStorage.getItem('s44_gcal_auth')||'null');
+    if(stored && stored.exp > Date.now()+60000){ gcalToken=stored.token; gcalTokenExp=stored.exp; }
+  }catch(e){}
+  updateGCalUI();
+  // If we have a token, load data from Sheets before rendering
+  if(gcalHasToken()){
+    sheetsLoad().then(loaded=>{
+      if(loaded){ renderMonth('sep'); renderMonth('oct'); updateProgress(); applyFilters(); }
+      updateSheetUI(getSavedSheetId());
+    });
+  }
+}
+
+function gcalHasToken(){ return !!gcalToken && Date.now()<gcalTokenExp-30000; }
+
+function gcalGetTokenClient(){
+  if(gcalTokenClient) return gcalTokenClient;
+  if(!window.google || !google.accounts || !google.accounts.oauth2){
+    alert('No se pudo cargar el login de Google (accounts.google.com/gsi/client). Revisá tu conexión a internet y recargá la página.');
+    return null;
+  }
+  gcalTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GCAL_CLIENT_ID,
+    scope: GCAL_SCOPE,
+    callback: (resp)=>{
+      if(resp.error){ console.error('GCal auth error:', resp); return; }
+      gcalToken = resp.access_token;
+      gcalTokenExp = Date.now() + parseInt(resp.expires_in||'3600',10)*1000;
+      try{ localStorage.setItem('s44_gcal_auth', JSON.stringify({token:gcalToken, exp:gcalTokenExp})); }catch(ex){}
+      gcalOnAuthed();
+    }
+  });
+  return gcalTokenClient;
+}
+
+function connectGCal(){
+  if(gcalHasToken()){ disconnectGCal(); return; }
+  const client = gcalGetTokenClient();
+  if(!client) return;
+  client.requestAccessToken({ prompt: 'select_account' });
+}
+
+function disconnectGCal(){
+  const prevToken = gcalToken;
+  gcalToken=null; gcalTokenExp=0;
+  try{
+    localStorage.removeItem('s44_gcal_auth');
+    // Keep sheet ID so reconnect finds the same sheet
+  }catch(e){}
+  if(prevToken && window.google && google.accounts && google.accounts.oauth2){
+    try{ google.accounts.oauth2.revoke(prevToken); }catch(e){}
+  }
+  updateGCalUI();
+  const el = document.getElementById('sheet-status');
+  if(el) el.style.display='none';
+}
+
+function updateGCalUI(){
+  const btn = document.getElementById('gcal-btn');
+  if(!btn) return;
+  if(gcalHasToken()){
+    btn.innerHTML = '📅 Conectado <span class="gcal-sync-dot"></span>';
+    btn.className  = 'btn-gcal-hdr connected';
+    btn.title = 'Google Calendar + Sheets activo — clic para desconectar';
+    btn.onclick = disconnectGCal;
+    updateSheetUI(getSavedSheetId());
+  } else {
+    btn.innerHTML = '📅 Conectar GCal';
+    btn.className  = 'btn-gcal-hdr';
+    btn.title = 'Conectar con Google Calendar';
+    btn.onclick = connectGCal;
+  }
+}
+
+function dateStrToISO(dateStr){
+  try{
+    const p=(dateStr||'').trim().split(' ');
+    const d=String(parseInt(p[1])||1).padStart(2,'0');
+    const mm={'Ene':'01','Feb':'02','Mar':'03','Abr':'04','May':'05','Jun':'06','Jul':'07','Ago':'08','Sep':'09','Oct':'10','Nov':'11','Dic':'12'};
+    return '2026-'+(mm[p[2]]||'09')+'-'+d;
+  }catch(e){ return '2026-09-01'; }
+}
+
+async function gcalCreate(rowId, client, dateStr, title, fmt, channels, obj){
+  if(!gcalHasToken()) return;
+  const iso = dateStrToISO(dateStr);
+  const body = {
+    summary: '['+client+'] '+title.replace(/^"|"$/g,''),
+    description: 'Formato: '+fmt+'\nCanales: '+(channels||'—')+'\nObjetivo: '+obj+'\n\nGenerado por Studio44 Grilla Maestra',
+    start:{date:iso}, end:{date:iso},
+    colorId: GCAL_COLORS[client]||'1'
+  };
+  try{
+    const r = await fetch(GCAL_API,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+gcalToken,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(r.ok){ const d=await r.json(); try{localStorage.setItem('s44_gcal_eid_'+rowId,d.id);}catch(ex){} }
+    else if(r.status===401){ gcalToken=null; updateGCalUI(); }
+  }catch(e){}
+}
+
+async function gcalUpdate(rowId){
+  if(!gcalHasToken()) return;
+  let eid; try{ eid=localStorage.getItem('s44_gcal_eid_'+rowId); }catch(e){ return; }
+  if(!eid) return;
+  const tr = document.getElementById('tr-'+rowId);
+  if(!tr) return;
+  const client = tr.dataset.client||'';
+  const dateStr = getDateVal(rowId,'');
+  const title   = getTitle(rowId,'').replace(/^"|"$/g,'');
+  const fmt     = getFmt(rowId,'');
+  const obj     = getObj(rowId,'');
+  const st      = getState(rowId);
+  const iso = dateStrToISO(dateStr);
+  const mark = st==='pub'?'✅ ':st==='proc'?'🔄 ':'';
+  const body = {
+    summary: mark+'['+client+'] '+title,
+    description: 'Formato: '+fmt+'\nObjetivo: '+obj+'\nEstado: '+st+'\n\nStudio44 Grilla Maestra',
+    start:{date:iso}, end:{date:iso},
+    colorId: GCAL_COLORS[client]||'1'
+  };
+  try{
+    const r = await fetch(GCAL_API+'/'+eid,{
+      method:'PATCH',
+      headers:{'Authorization':'Bearer '+gcalToken,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(r.status===401){ gcalToken=null; updateGCalUI(); }
+    if(r.status===404){ try{localStorage.removeItem('s44_gcal_eid_'+rowId);}catch(ex){} }
+  }catch(e){}
+}
+
+async function gcalDelete(rowId){
+  if(!gcalHasToken()) return;
+  let eid; try{ eid=localStorage.getItem('s44_gcal_eid_'+rowId); }catch(e){ return; }
+  if(!eid) return;
+  try{
+    await fetch(GCAL_API+'/'+eid,{method:'DELETE',headers:{'Authorization':'Bearer '+gcalToken}});
+    localStorage.removeItem('s44_gcal_eid_'+rowId);
+  }catch(e){}
+}
+
+// ─── GOOGLE SHEETS PERSISTENCE ───────────────────────────────────────────────
+const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets';
+
+function getSavedSheetId(){ try{ return localStorage.getItem('s44_sheet_id')||''; }catch(e){ return ''; } }
+function saveSheetId(id){ try{ localStorage.setItem('s44_sheet_id', id); }catch(e){} }
+
+async function sheetsGetOrCreate(){
+  let sid = getSavedSheetId();
+  if(sid) return sid;
+  if(!gcalHasToken()) return '';
+  try{
+    const r = await fetch(SHEETS_API, {
+      method:'POST',
+      headers:{'Authorization':'Bearer '+gcalToken,'Content-Type':'application/json'},
+      body: JSON.stringify({
+        properties:{ title:'Studio44 — Grilla Maestra Data' },
+        sheets:[{ properties:{ title:'Data' } }]
+      })
+    });
+    if(r.ok){
+      const d = await r.json();
+      sid = d.spreadsheetId;
+      saveSheetId(sid);
+      updateSheetUI(sid);
+      return sid;
+    }
+    if(r.status===401){ gcalToken=null; updateGCalUI(); }
+  }catch(e){}
+  return '';
+}
+
+async function sheetsLoad(){
+  if(!gcalHasToken()) return false;
+  const sid = getSavedSheetId() || await sheetsGetOrCreate();
+  if(!sid) return false;
+  try{
+    const r = await fetch(`${SHEETS_API}/${sid}/values/Data!A1`,{
+      headers:{'Authorization':'Bearer '+gcalToken}
+    });
+    if(r.status===401){ gcalToken=null; updateGCalUI(); return false; }
+    if(!r.ok) return false;
+    const d = await r.json();
+    if(d.values && d.values[0] && d.values[0][0]){
+      const data = JSON.parse(d.values[0][0]);
+      Object.keys(data).forEach(k=>{ try{ localStorage.setItem(k, data[k]); }catch(ex){} });
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+let _sheetSaveTimer = null;
+function sheetsSave(){
+  if(!gcalHasToken()) return;
+  clearTimeout(_sheetSaveTimer);
+  _sheetSaveTimer = setTimeout(async ()=>{
+    const sid = await sheetsGetOrCreate();
+    if(!sid) return;
+    const data = {};
+    try{
+      for(let i=0; i<localStorage.length; i++){
+        const k = localStorage.key(i);
+        if(k && k.startsWith('s44_')) data[k] = localStorage.getItem(k);
+      }
+    }catch(e){ return; }
+    try{
+      const r = await fetch(`${SHEETS_API}/${sid}/values/Data!A1?valueInputOption=RAW`,{
+        method:'PUT',
+        headers:{'Authorization':'Bearer '+gcalToken,'Content-Type':'application/json'},
+        body: JSON.stringify({ values:[[JSON.stringify(data)]] })
+      });
+      if(r.status===401){ gcalToken=null; updateGCalUI(); }
+      else if(r.ok){ updateSheetUI(sid, true); }
+    }catch(e){}
+  }, 1500);
+}
+
+function updateSheetUI(sid, saved){
+  const el = document.getElementById('sheet-status');
+  if(!el) return;
+  if(sid){
+    const shortId = sid.substring(0,8)+'…';
+    el.innerHTML = saved
+      ? `<span style="color:var(--pub)">💾 Sheet guardado</span>`
+      : `<span style="color:var(--muted)">📊 Sheet: <a href="https://docs.google.com/spreadsheets/d/${sid}" target="_blank" rel="noopener" style="color:var(--drpujol)">${shortId}</a></span>`;
+    el.style.display='inline';
+    setTimeout(()=>{ if(saved) el.innerHTML=`<span style="color:var(--muted)">📊 <a href="https://docs.google.com/spreadsheets/d/${sid}" target="_blank" rel="noopener" style="color:var(--drpujol)">Ver Sheet</a></span>`; }, 2500);
+  } else {
+    el.style.display='none';
+  }
+}
+
+// ─── GOOGLE CALENDAR HELPER ──────────────────────────────────────────────────
+function buildGCalUrl(dateStr, title, client, fmt){
+  try{
+    const parts=(dateStr||'').trim().split(' ');
+    const day=parseInt(parts[1])||1;
+    const monthMap={'Ene':'01','Feb':'02','Mar':'03','Abr':'04','May':'05','Jun':'06','Jul':'07','Ago':'08','Sep':'09','Oct':'10','Nov':'11','Dic':'12'};
+    const month=monthMap[parts[2]]||'09';
+    const year='2026';
+    const dp=String(day).padStart(2,'0');
+    const startDate=year+month+dp;
+    const nd=new Date(parseInt(year),parseInt(month)-1,day+1);
+    const endDate=year+String(nd.getMonth()+1).padStart(2,'0')+String(nd.getDate()).padStart(2,'0');
+    const text=encodeURIComponent('['+client+'] '+title.replace(/^"|"$/g,''));
+    const details=encodeURIComponent('Formato: '+fmt+'\nCliente: '+client+'\nStudio44 Grilla Maestra');
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+text+'&dates='+startDate+'/'+endDate+'&details='+details;
+  }catch(e){ return 'https://calendar.google.com/calendar/render'; }
+}
+// ─── CONFIRM MODAL ────────────────────────────────────────────────────────────
+let _cfmCallback = null;
+function showConfirm({icon='🗑', title, body, okLabel='Eliminar', okCls='danger', onOk}){
+  _cfmCallback = onOk;
+  document.getElementById('cfm-icon').textContent = icon;
+  document.getElementById('cfm-title').textContent = title;
+  document.getElementById('cfm-body').textContent = body;
+  const btn = document.getElementById('cfm-ok');
+  btn.textContent = okLabel;
+  btn.className = 'cfm-ok ' + okCls;
+  document.getElementById('cfm-modal').classList.add('open');
+}
+function cfmClose(){
+  document.getElementById('cfm-modal').classList.remove('open');
+  _cfmCallback = null;
+}
+function cfmConfirm(){
+  document.getElementById('cfm-modal').classList.remove('open');
+  if(_cfmCallback) _cfmCallback();
+  _cfmCallback = null;
+}
+// ─── CALENDAR PICKER ──────────────────────────────────────────────────────────
+let _selectedCalDate = '';
+
+function buildCal(mKey) {
+  const year = 2026;
+  const month = mKey === 'sep' ? 8 : 9; // JS: 8=Sep, 9=Oct
+  const monthLabel = mKey === 'sep' ? 'Septiembre 2026' : 'Octubre 2026';
+  const MONTH_ES = mKey === 'sep' ? 'Sep' : 'Oct';
+  const DOW_NAMES = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const firstDay = new Date(year, month, 1);
+  const lastDay  = new Date(year, month + 1, 0);
+  const startOffset = (firstDay.getDay() + 6) % 7; // Mon=0
+  let html = `<div class="cal-header"><span class="cal-month-label">📅 ${monthLabel}</span></div><div class="cal-grid">`;
+  DOW_NAMES.forEach(d => html += `<div class="cal-dow">${d}</div>`);
+  for(let i = 0; i < startOffset; i++) html += '<div class="cal-day cal-empty"></div>';
+  for(let d = 1; d <= lastDay.getDate(); d++) {
+    const dow = new Date(year, month, d).getDay(); // 0=Sun,6=Sat
+    const isWknd = dow === 0 || dow === 6;
+    const dowIdx = (dow + 6) % 7;
+    const dateStr = `${DOW_NAMES[dowIdx]} ${d} ${MONTH_ES}`;
+    const isSel = _selectedCalDate === dateStr;
+    let cls = 'cal-day' + (isWknd ? ' cal-wknd' : '') + (isSel ? ' cal-selected' : '');
+    const onclick = isWknd ? '' : `onclick="selectCalDay('${dateStr}',this)"`;
+    html += `<div class="${cls}" data-date="${dateStr}" ${onclick}>${d}</div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function selectCalDay(dateStr, el) {
+  _selectedCalDate = dateStr;
+  document.getElementById('af-date').value = dateStr;
+  const disp = document.getElementById('af-date-display');
+  if(disp){ disp.textContent = '📅 ' + dateStr; disp.className = 'cal-sel-display picked'; }
+  document.querySelectorAll('#af-cal-container .cal-day').forEach(d => {
+    d.classList.toggle('cal-selected', d.dataset.date === dateStr);
+  });
+  document.getElementById('af-date-wrap').classList.remove('err');
+}
+
+
+
+// ─── CLIENT CONFIG ────────────────────────────────────────────────────────────
+const CLIENT_CFG = {
+  'ANPOWER':       {cls:'b-anpower',  color:'var(--anpower)'},
+  'GEMZA':         {cls:'b-gemza',    color:'var(--gemza)'},
+  'STUDIO44':      {cls:'b-studio44', color:'var(--studio44)'},
+  'GERMÁN K':      {cls:'b-germank',  color:'var(--germank)'},
+  'DR. PUJOL':     {cls:'b-drpujol',  color:'var(--drpujol)'},
+  'T. GAMBOA':     {cls:'b-gamboa',   color:'var(--gamboa)'},
+  'S44/EJECUTIVO': {cls:'b-s44exec',  color:'var(--s44exec)'},
+};
+const FORMATS_LIST = ['Reel','Placa','Carrusel','Flyer','Story','Post','Reunión','Acción','Llamada','Entrega','Seguimiento'];
+const OBJS_LIST    = ['Institucional','Autoridad','Promoción','Educación','Efemérides','Alcance','Educativo','Conversión'];
+const FMT_CLS = {
+  Reel:'b-reel',Placa:'b-placa',Carrusel:'b-carrusel',Flyer:'b-flyer',Story:'b-story',Post:'b-post',
+  'Reunión':'b-reunion','Acción':'b-accion','Llamada':'b-llamada','Entrega':'b-entrega','Seguimiento':'b-seguimiento'
+};
+const CH_CLS  = {IG:'b-ig',TikTok:'b-tt',LinkedIn:'b-li'};
+const OBJ_CLS = {
+  Alcance:'b-alcance',Educativo:'b-educativo',Autoridad:'b-autoridad',Conversión:'b-conversion',
+  Institucional:'b-institucional',Promoción:'b-promocion','Educación':'b-educacion',Efemérides:'b-efemerides'
+};
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderMonth(mKey){
+  const mData = MONTHS[mKey];
+  const panel = document.getElementById('panel-'+mKey);
+  let html = '';
+  mData.weeks.forEach((w, wIdx) => {
+    html += `<div class="week-block">
+      <div class="week-hdr">${w.title}${w.alert?` <span class="week-badge">⚠ Lun 12 Feriado — sin publicar</span>`:''}
+      </div>
+      <div class='table-scroll'><table>
+        <thead><tr>
+          <th style="width:36px"></th>
+          <th>Fecha</th><th>Cliente</th><th>Formato</th><th>Canales</th>
+          <th>Contenido <span style="font-weight:400;color:var(--muted2)">(clic para editar)</span></th>
+          <th>Objetivo</th><th>Estado</th><th>🔗 Link publicación</th>
+        </tr></thead>
+        <tbody>`;
+    // Filas planificadas + custom — ordenadas por fecha (merge & sort)
+    const customs = getCustomRows(mKey).filter(r=>r.weekIdx===wIdx);
+    // Re-collect planned rows as sortable items
+    const plannedItems = w.rows
+      .filter(r=>!getDeleted(r.id))
+      .map(r=>({
+        sortKey: parseInt((getDateVal(r.id,r.date)||r.date).split(' ')[1])||0,
+        html: (()=>{
+          const st=getState(r.id);
+          const savedTitle=getTitle(r.id,r.title);
+          const savedFmt=getFmt(r.id,r.fmt);
+          const savedObj=getObj(r.id,r.obj);
+          const savedDate=getDateVal(r.id,r.date);
+          const savedLink=getLink(r.id);
+          const cc=CLIENT_CFG[r.client]||{cls:'',color:'#fff'};
+          const chB=r.ch&&r.ch.length?r.ch.map(c=>`<span class="badge ${CH_CLS[c]||''}">${c}</span>`).join(''):'<span style="color:var(--muted2);font-size:11px;padding:0 4px;">—</span>';
+          const lkI=savedLink?`<div class="link-filled"><a class="link-open" href="${savedLink}" target="_blank" rel="noopener">🔗 Ver pub.</a><button class="link-del" onclick="deleteLink('${r.id}')" title="Quitar link">✕</button></div>`:`<div class="link-empty" onclick="openLinkModal('${r.id}')">＋ Pegar link</div>`;
+          const dCls=st==='pub'?'btn-del-row del-pub':'btn-del-row';
+          const dTit=st==='pub'?'⚠ Ya publicado — igual podés eliminarlo de la grilla':'Eliminar esta fila de la grilla';
+          const dayKey=savedDate.split(' ')[0];
+          const savedTime=r.client==='S44/EJECUTIVO'?getTime(r.id):'';
+          return `<tr id="tr-${r.id}" class="st-${st}${st==='pub'?' is-pub':st==='proc'?' is-proc':''}" data-id="${r.id}" data-client="${r.client}" data-status="${st}" data-day="${dayKey}" data-fmt="${savedFmt}">
+        <td><div class="status-cell st-${st}" onclick="cycleStatus('${r.id}')" title="Cambiar estado"><div class="status-icon">${st==='pub'?'✓':st==='proc'?'◐':''}</div></div></td>
+        <td class="td-date">
+          <div class="date-d" id="dt-${r.id}" onclick="startDateEdit('${r.id}')" onblur="saveDateEdit('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Clic para editar fecha">${savedDate}</div>
+          ${r.client==='S44/EJECUTIVO'?`<div class="time-d${savedTime?'':' empty'}" id="tm-${r.id}" contenteditable="false" onclick="startTimeEdit('${r.id}')" onblur="saveTimeEdit('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Clic para editar hora">⏰ ${savedTime||'+ Agregar hora'}</div>`:''}
+        </td>
+        <td class="td-client"><span class="badge ${cc.cls}">${r.client}</span></td>
+        <td class="td-fmt"><span class="badge ${FMT_CLS[savedFmt]||''} editable-badge" id="fmt-${r.id}" onclick="cycleFormat('${r.id}')" title="Clic para cambiar formato">${savedFmt}<span class="eico">✏</span></span></td>
+        <td class="td-ch"><div class="ch-wrap">${chB}</div></td>
+        <td class="td-title"><div class="title-text" contenteditable="false" id="ttl-${r.id}" onclick="startEdit('${r.id}')" onblur="saveTitle('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">${savedTitle}</div><div class="edit-hint">✏ Clic para editar</div></td>
+        <td class="td-obj"><span class="badge ${OBJ_CLS[savedObj]||''} editable-badge" id="obj-${r.id}" onclick="cycleObj('${r.id}')" title="Clic para cambiar objetivo">${savedObj}<span class="eico">✏</span></span></td>
+        <td style="padding:8px 10px;white-space:nowrap;"><span class="st-pill stp-${st}" id="sp-${r.id}">${STATE_ICONS[st]} ${STATE_LABELS[st]}</span></td>
+        <td class="td-link"><div style="display:flex;align-items:center;gap:4px;"><div id="lk-${r.id}" style="flex:1">${lkI}</div><a class="btn-gcal" href="${buildGCalUrl(savedDate,savedTitle,r.client,savedFmt)}" target="_blank" rel="noopener" title="Agregar a Google Calendar">📅</a><button class="${dCls}" onclick="deleteRow('${r.id}')" title="${dTit}">🗑</button></div></td>
+      </tr>`;
+        })()
+      }));
+    const customItems = customs.map(r=>({
+      sortKey: parseInt((getDateVal(r.id,r.date)||r.date).split(' ')[1])||0,
+      html: renderCustomRowHTML(r,mKey)
+    }));
+    [...plannedItems,...customItems]
+      .sort((a,b)=>a.sortKey-b.sortKey)
+      .forEach(item=>{ html+=item.html; });
+    // Add-row trigger
+    html += `</tbody>
+      <tfoot class="add-tfoot"><tr><td colspan="9">
+        <div class="add-row-trigger" onclick="openAddModal('${mKey}',${wIdx})">
+          ＋ &nbsp;Agregar contenido imprevisto a esta semana
+        </div>
+      </td></tr></tfoot>
+    </table></div></div>`;
+  });
+  panel.innerHTML = html;
+}
+
+function cycleStatus(id){
+  const cur = getState(id);
+  const idx = STATES.indexOf(cur);
+  const next = STATES[(idx+1)%STATES.length];
+  setState(id,next);
+  const tr = document.getElementById('tr-'+id);
+  tr.className = `st-${next}${next==='pub'?' is-pub':next==='proc'?' is-proc':''}`;
+  tr.dataset.status = next;
+  gcalUpdate(id);
+  const sc = tr.querySelector('.status-cell');
+  sc.className = `status-cell st-${next}`;
+  const si = tr.querySelector('.status-icon');
+  si.textContent = next==='pub'?'✓':next==='proc'?'◐':'';
+  const sp = document.getElementById('sp-'+id);
+  sp.className = `st-pill stp-${next}`;
+  sp.textContent = `${STATE_ICONS[next]} ${STATE_LABELS[next]}`;
+  // Update delete button appearance based on new status
+  const delBtn = tr.querySelector('.btn-del-row');
+  if(delBtn && !tr.classList.contains('custom-row')){
+    if(next==='pub'){
+      delBtn.className='btn-del-row del-pub';
+      delBtn.title='⚠ Ya publicado — igual podés eliminarlo de la grilla';
+    } else {
+      delBtn.className='btn-del-row';
+      delBtn.title='Eliminar esta fila de la grilla';
+    }
+  }
+  updateProgress();
+  applyFilters();
+  showSaveToast();
+}
+
+function startEdit(id){
+  const el = document.getElementById('ttl-'+id);
+  el.contentEditable = 'true';
+  el.focus();
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+}
+function saveTitle(id){
+  const el = document.getElementById('ttl-'+id);
+  el.contentEditable = 'false';
+  setTitle(id, el.textContent.trim());
+  showSaveToast();
+  gcalUpdate(id);
+}
+function startDateEdit(id){
+  const el = document.getElementById('dt-'+id);
+  el.contentEditable = 'true';
+  el.focus();
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+}
+function saveDateEdit(id){
+  const el = document.getElementById('dt-'+id);
+  el.contentEditable = 'false';
+  const val = el.textContent.trim();
+  if(val) setDateVal(id, val);
+  showSaveToast();
+  gcalUpdate(id);
+}
+
+function startTimeEdit(id){
+  const el = document.getElementById('tm-'+id);
+  if(!el) return;
+  if(el.classList.contains('empty')){
+    el.textContent = '⏰ ';
+    el.classList.remove('empty');
+  }
+  el.contentEditable = 'true';
+  el.focus();
+  // Put cursor at end
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+}
+function saveTimeEdit(id){
+  const el = document.getElementById('tm-'+id);
+  if(!el) return;
+  el.contentEditable = 'false';
+  // Strip the emoji prefix if the user left it
+  let val = el.textContent.replace(/^⏰\s*/,'').trim();
+  if(val){ setTime(id, val); el.textContent='⏰ '+val; el.classList.remove('empty'); }
+  else { el.textContent='⏰ + Agregar hora'; el.classList.add('empty'); }
+  showSaveToast();
+}
+
+function showSaveToast(){
+  const t = document.getElementById('save-toast');
+  t.style.display='inline';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.style.display='none',1800);
+  sheetsSave();
+}
+
+function cycleFormat(id){
+  const cur = getFmt(id, '?');
+  const idx = FORMATS_LIST.indexOf(cur);
+  const next = FORMATS_LIST[(idx+1) % FORMATS_LIST.length];
+  setFmt(id, next);
+  const el = document.getElementById('fmt-'+id);
+  if(el){ el.className=`badge ${FMT_CLS[next]||''} editable-badge`; el.innerHTML=next+'<span class="eico">✏</span>'; }
+  showSaveToast();
+}
+function cycleObj(id){
+  const cur = getObj(id, '?');
+  const idx = OBJS_LIST.indexOf(cur);
+  const next = OBJS_LIST[(idx+1) % OBJS_LIST.length];
+  setObj(id, next);
+  const el = document.getElementById('obj-'+id);
+  if(el){ el.className=`badge ${OBJ_CLS[next]||''} editable-badge`; el.innerHTML=next+'<span class="eico">✏</span>'; }
+  showSaveToast();
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+function getAllIds(mKey){
+  const base = MONTHS[mKey].weeks.flatMap(w=>w.rows.map(r=>r.id)).filter(id=>!getDeleted(id));
+  const custom = getCustomRows(mKey).map(r=>r.id);
+  return [...base,...custom];
+}
+function updateProgress(){
+  const ids = getAllIds(curMonth);
+  const pub = ids.filter(id=>getState(id)==='pub').length;
+  const proc = ids.filter(id=>getState(id)==='proc').length;
+  const pend = ids.filter(id=>getState(id)==='pend').length;
+  const total = ids.length;
+  const pct = total ? Math.round(pub/total*100) : 0;
+  document.getElementById('prog-bar').style.width = pct+'%';
+  document.getElementById('prog-pct').textContent = `${pub} / ${total} publicados`;
+  document.getElementById('cnt-pub').textContent = pub;
+  document.getElementById('cnt-proc').textContent = proc;
+  document.getElementById('cnt-pend').textContent = pend;
+  document.getElementById('prog-month-label').textContent = MONTHS[curMonth].label;
+}
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+function setFilter(f,el){
+  filterStatus = f;
+  document.querySelectorAll('.fbtn[data-f]').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+function setClient(c,el){
+  filterClient = c;
+  document.querySelectorAll('.fbtn.client-btn').forEach(b=>b.classList.remove('active-c'));
+  el.classList.add('active-c');
+  applyFilters();
+}
+function setDay(d,el){
+  filterDay = d;
+  document.querySelectorAll('.fbtn[data-d]').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+function setFmt(fm,el){
+  filterFmt = fm;
+  document.querySelectorAll('.fbtn[data-fm]').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+function applyFilters(){
+  const panel = document.getElementById('panel-'+curMonth);
+  panel.querySelectorAll('tr[data-id]').forEach(tr=>{
+    const st  = tr.dataset.status||'pend';
+    const cl  = tr.dataset.client||'';
+    const day = tr.dataset.day||'';
+    const fmt = tr.dataset.fmt||'';
+    const stOk  = filterStatus==='all' || st===filterStatus;
+    const clOk  = filterClient==='all' || cl===filterClient;
+    const dayOk = filterDay==='all'    || day===filterDay;
+    const fmOk  = filterFmt==='all'    || fmt===filterFmt;
+    tr.classList.toggle('hidden', !(stOk&&clOk&&dayOk&&fmOk));
+  });
+}
+
+// ─── MONTH SWITCH ─────────────────────────────────────────────────────────────
+function switchMonth(m, el){
+  curMonth = m;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  // Reset day & fmt filters on month switch
+  filterDay = 'all'; filterFmt = 'all';
+  document.querySelectorAll('.fbtn[data-d]').forEach(b=>b.classList.toggle('active', b.dataset.d==='all'));
+  document.querySelectorAll('.fbtn[data-fm]').forEach(b=>b.classList.toggle('active', b.dataset.fm==='all'));
+  updateProgress();
+  applyFilters();
+}
+
+// ─── LINK MODAL ───────────────────────────────────────────────────────────────
+function openLinkModal(id){
+  _linkTargetId = id;
+  const existing = getLink(id);
+  const modal = document.getElementById('link-modal');
+  const input = document.getElementById('link-input');
+  input.value = existing || '';
+  modal.classList.add('open');
+  setTimeout(()=>{ input.focus(); input.select(); }, 80);
+}
+function closeLinkModal(e){
+  if(e && e.target !== document.getElementById('link-modal')) return;
+  document.getElementById('link-modal').classList.remove('open');
+  _linkTargetId = null;
+}
+function confirmLink(){
+  if(!_linkTargetId) return;
+  const val = document.getElementById('link-input').value.trim();
+  if(val && !val.startsWith('http')) {
+    document.getElementById('link-input').style.borderColor='var(--germank)';
+    return;
+  }
+  setLink(_linkTargetId, val);
+  renderLinkCell(_linkTargetId, val);
+  document.getElementById('link-modal').classList.remove('open');
+  _linkTargetId = null;
+  showSaveToast();
+}
+function deleteLink(id){
+  setLink(id,'');
+  renderLinkCell(id,'');
+  showSaveToast();
+}
+function renderLinkCell(id, url){
+  const cell = document.getElementById('lk-'+id);
+  if(!cell) return;
+  if(url){
+    cell.innerHTML = `<div class="link-filled">
+      <a class="link-open" href="${url}" target="_blank" rel="noopener">🔗 Ver pub.</a>
+      <button class="link-del" onclick="deleteLink('${id}')" title="Quitar link">✕</button>
+    </div>`;
+  } else {
+    cell.innerHTML = `<div class="link-empty" onclick="openLinkModal('${id}')">＋ Pegar link</div>`;
+  }
+}
+
+// ─── RESET ────────────────────────────────────────────────────────────────────
+function confirmReset(){
+  showConfirm({
+    icon: '🔄',
+    title: 'Reiniciar estados del mes',
+    body: `¿Reiniciar todos los estados de ${MONTHS[curMonth].label} a Pendiente?\n\nEsto también restaurará las filas que hayas eliminado.`,
+    okLabel: 'Sí, reiniciar',
+    okCls: 'warn',
+    onOk: ()=>{
+      MONTHS[curMonth].weeks.flatMap(w=>w.rows.map(r=>r.id)).forEach(id=>{
+        setState(id,'pend');
+        setDeleted(id,false);
+      });
+      getCustomRows(curMonth).forEach(r=>setState(r.id,'pend'));
+      renderMonth(curMonth);
+      updateProgress();
+      applyFilters();
+      showSaveToast();
+    }
+  });
+}
+
+// ─── CUSTOM ROWS (IMPROVISTOS) ────────────────────────────────────────────────
+function getCustomRows(mKey){ try{ return JSON.parse(localStorage.getItem('s44_custom_'+mKey)||'[]'); }catch(e){ return []; } }
+function saveCustomRows(mKey,rows){ try{ localStorage.setItem('s44_custom_'+mKey,JSON.stringify(rows)); }catch(e){} }
+
+let _addTargetMonth=null, _addTargetWeek=null;
+
+function onAfClientChange(){
+  const isExec = document.getElementById('af-client').value === 'S44/EJECUTIVO';
+  document.getElementById('af-time-wrap').style.display = isExec ? '' : 'none';
+}
+function openAddModal(mKey,wIdx){
+  _addTargetMonth=mKey; _addTargetWeek=wIdx;
+  _selectedCalDate = '';
+  document.getElementById('af-date').value='';
+  document.getElementById('af-title').value='';
+  document.getElementById('af-note').value='';
+  document.getElementById('af-time').value='';
+  document.getElementById('af-ig').checked=true;
+  document.getElementById('af-tt').checked=false;
+  document.getElementById('af-li').checked=false;
+  document.getElementById('af-date-wrap').classList.remove('err');
+  document.getElementById('af-title-wrap').classList.remove('err');
+  // Reset date display
+  const disp = document.getElementById('af-date-display');
+  if(disp){ disp.textContent='Seleccioná un día del calendario'; disp.className='cal-sel-display empty'; }
+  // Render calendar for this month
+  const calEl = document.getElementById('af-cal-container');
+  if(calEl) calEl.innerHTML = buildCal(mKey);
+  onAfClientChange();
+  document.getElementById('add-modal').classList.add('open');
+}
+function closeAddModal(e){
+  if(e && e.target!==document.getElementById('add-modal')) return;
+  document.getElementById('add-modal').classList.remove('open');
+  _addTargetMonth=null; _addTargetWeek=null;
+}
+function confirmAddRow(){
+  const date=_selectedCalDate || document.getElementById('af-date').value.trim();
+  const title=document.getElementById('af-title').value.trim()||'(Sin título)';
+  const client=document.getElementById('af-client').value;
+  const fmt=document.getElementById('af-fmt').value;
+  const obj=document.getElementById('af-obj').value;
+  const note=document.getElementById('af-note').value.trim();
+  const ch=[];
+  if(document.getElementById('af-ig').checked) ch.push('IG');
+  if(document.getElementById('af-tt').checked) ch.push('TikTok');
+  if(document.getElementById('af-li').checked) ch.push('LinkedIn');
+  let ok=true;
+  if(!date){ document.getElementById('af-date-wrap').classList.add('err'); ok=false; } else { document.getElementById('af-date-wrap').classList.remove('err'); }
+  if(ch.length===0 && client!=='S44/EJECUTIVO'){ alert('Seleccioná al menos un canal.'); ok=false; }
+  if(!ok) return;
+  const time=document.getElementById('af-time').value.trim();
+  const id='cx_'+Date.now();
+  const row={id,weekIdx:_addTargetWeek,date,client,fmt,ch,title,obj,note};
+  if(client==='S44/EJECUTIVO' && time) setTime(id, time);
+  const rows=getCustomRows(_addTargetMonth);
+  rows.push(row);
+  saveCustomRows(_addTargetMonth,rows);
+  gcalCreate(id, client, date, title, fmt, ch.join(', '), obj);
+  renderMonth(_addTargetMonth);
+  updateProgress();
+  applyFilters();
+  showSaveToast();
+  document.getElementById('add-modal').classList.remove('open');
+  _addTargetMonth=null; _addTargetWeek=null;
+}
+function deleteCustomRow(id,mKey){
+  showConfirm({
+    icon: '⚡',
+    title: 'Eliminar contenido imprevisto',
+    body: 'Este contenido fue agregado fuera de la grilla planificada.\n¿Confirmás que querés eliminarlo?',
+    okLabel: 'Eliminar',
+    okCls: 'danger',
+    onOk: ()=>{
+      gcalDelete(id);
+      saveCustomRows(mKey, getCustomRows(mKey).filter(r=>r.id!==id));
+      renderMonth(mKey);
+      updateProgress();
+      applyFilters();
+      showSaveToast();
+    }
+  });
+}
+function deleteRow(id){
+  const st = getState(id);
+  const isPub = st === 'pub';
+  showConfirm({
+    icon: isPub ? '⚠️' : '🗑',
+    title: isPub ? 'Fila ya publicada — ¿eliminás de todas formas?' : 'Eliminar fila de la grilla',
+    body: isPub
+      ? 'Esta fila ya está marcada como PUBLICADA.\nEl contenido seguirá publicado en la red, pero desaparecerá del calendario.\n\nPodés restaurarla con "Reiniciar estados".'
+      : 'Esta fila se eliminará de la grilla.\nPodés restaurarla en cualquier momento con "Reiniciar estados".',
+    okLabel: isPub ? 'Sí, eliminar igual' : 'Eliminar',
+    okCls: isPub ? 'warn' : 'danger',
+    onOk: ()=>{
+      gcalDelete(id);
+      setDeleted(id, true);
+      const tr = document.getElementById('tr-'+id);
+      if(tr) tr.remove();
+      updateProgress();
+      showSaveToast();
+    }
+  });
+}
+function renderCustomRowHTML(r, mKey){
+  const st=getState(r.id);
+  const savedTitle=getTitle(r.id,r.title);
+  const savedFmt  =getFmt(r.id,r.fmt);
+  const savedObj  =getObj(r.id,r.obj);
+  const savedDate =getDateVal(r.id,r.date);
+  const savedLink=getLink(r.id);
+  const savedTime=r.client==='S44/EJECUTIVO'?getTime(r.id):'';
+  const cc=CLIENT_CFG[r.client]||{cls:'',color:'#fff'};
+  const chBadges=r.ch&&r.ch.length ? r.ch.map(c=>`<span class="badge ${CH_CLS[c]||''}">${c}</span>`).join('') : '<span style="color:var(--muted2);font-size:11px;padding:0 4px;">—</span>';
+  const linkInner=savedLink
+    ? `<div class="link-filled"><a class="link-open" href="${savedLink}" target="_blank" rel="noopener">🔗 Ver pub.</a><button class="link-del" onclick="deleteLink('${r.id}')" title="Quitar link">✕</button></div>`
+    : `<div class="link-empty" onclick="openLinkModal('${r.id}')">＋ Pegar link</div>`;
+  const noteTag=r.note?`<div class="add-note">💬 ${r.note}</div>`:'';
+  const cDayKey = savedDate.split(' ')[0];
+  return `<tr id="tr-${r.id}" class="st-${st}${st==='pub'?' is-pub':st==='proc'?' is-proc':''} custom-row" data-id="${r.id}" data-client="${r.client}" data-status="${st}" data-day="${cDayKey}" data-fmt="${savedFmt}">
+    <td>
+      <div class="status-cell st-${st}" onclick="cycleStatus('${r.id}')" title="Cambiar estado">
+        <div class="status-icon">${st==='pub'?'✓':st==='proc'?'◐':''}</div>
+      </div>
+    </td>
+    <td class="td-date">
+      <div class="date-d" id="dt-${r.id}" onclick="startDateEdit('${r.id}')" onblur="saveDateEdit('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Clic para editar fecha">${savedDate}</div>
+      ${r.client==='S44/EJECUTIVO'?`<div class="time-d${savedTime?'':' empty'}" id="tm-${r.id}" contenteditable="false" onclick="startTimeEdit('${r.id}')" onblur="saveTimeEdit('${r.id}')" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Clic para editar hora">⏰ ${savedTime||'+ Agregar hora'}</div>`:''}
+      ${r.client!=='S44/EJECUTIVO'?'<span class="custom-row-mark">⚡ IMPREVISTO</span>':'<span class="custom-row-mark">⚡ IMPREVISTO</span>'}
+    </td>
+    <td class="td-client"><span class="badge ${cc.cls}">${r.client}</span></td>
+    <td class="td-fmt"><span class="badge ${FMT_CLS[savedFmt]||''} editable-badge" id="fmt-${r.id}" onclick="cycleFormat('${r.id}')" title="Clic para cambiar formato">${savedFmt}<span class="eico">✏</span></span></td>
+    <td class="td-ch"><div class="ch-wrap">${chBadges}</div></td>
+    <td class="td-title">
+      <div class="title-text" contenteditable="false" id="ttl-${r.id}"
+           onclick="startEdit('${r.id}')" onblur="saveTitle('${r.id}')"
+           onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+      >${savedTitle}</div>
+      ${noteTag}
+    </td>
+    <td class="td-obj"><span class="badge ${OBJ_CLS[savedObj]||''} editable-badge" id="obj-${r.id}" onclick="cycleObj('${r.id}')" title="Clic para cambiar objetivo">${savedObj}<span class="eico">✏</span></span></td>
+    <td style="padding:8px 10px;white-space:nowrap;">
+      <span class="st-pill stp-${st}" id="sp-${r.id}">${STATE_ICONS[st]} ${STATE_LABELS[st]}</span>
+    </td>
+    <td class="td-link">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <div id="lk-${r.id}" style="flex:1">${linkInner}</div>
+        <a class="btn-gcal" href="${buildGCalUrl(savedDate,savedTitle,r.client,savedFmt)}" target="_blank" rel="noopener" title="Agregar a Google Calendar">📅</a><button class="btn-del-row" onclick="deleteCustomRow('${r.id}','${mKey}')" title="Eliminar este imprevisto">✕</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') {
+    document.getElementById('link-modal').classList.remove('open');
+    _linkTargetId = null;
+    document.getElementById('add-modal').classList.remove('open');
+    _addTargetMonth=null; _addTargetWeek=null;
+    cfmClose();
+  }
+});
+// ─── RESTAURAR FILAS GEMZA (limpia flags de eliminado para todas las filas base de GEMZA) ───
+(function restoreGemza(){
+  try{
+    Object.keys(MONTHS).forEach(mKey=>{
+      MONTHS[mKey].weeks.forEach(w=>{
+        w.rows.forEach(r=>{
+          if(r.client==='GEMZA') localStorage.removeItem('s44_del_'+r.id);
+        });
+      });
+    });
+  }catch(e){}
+})();
+// ─── PWA INSTALL ──────────────────────────────────────────────────────────────
+let _deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredInstall = e;
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.classList.add('visible');
+});
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.classList.remove('visible');
+  _deferredInstall = null;
+});
+function installApp(){
+  if(_deferredInstall){
+    _deferredInstall.prompt();
+    _deferredInstall.userChoice.then(()=>{ _deferredInstall=null; });
+  } else {
+    alert('Para instalar la grilla como app:\n\n• En Chrome/Edge de escritorio: menú ⋮ → "Instalar Studio44 Grilla"\n• En iPhone/Safari: botón Compartir → "Agregar a pantalla de inicio"\n• En Android/Chrome: menú ⋮ → "Agregar a pantalla de inicio"');
+  }
+}
+
+gcalInit();
+renderMonth('sep');
+renderMonth('oct');
+updateProgress();
+applyFilters();
+</script>
