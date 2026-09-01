@@ -907,7 +907,7 @@ function sheetsSave(){
         body: JSON.stringify({ values:[[JSON.stringify(data)]] })
       });
       if(r.status===401){ gcalToken=null; updateGCalUI(); }
-      else if(r.ok){ updateSheetUI(sid, true); }
+      else if(r.ok){ const d = await r.json(); console.log('[Sheets] save OK →', d); updateSheetUI(sid, true); }
       else{ await sheetsErrorFrom(r, 'save'); }
     }catch(e){ console.error('[Sheets] save threw:', e); }
   }, 1500);
