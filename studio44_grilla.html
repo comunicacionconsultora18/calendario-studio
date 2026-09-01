@@ -850,8 +850,20 @@ async function sheetsGetOrCreate(){
       return sid;
     }
     if(r.status===401){ gcalToken=null; updateGCalUI(); }
-  }catch(e){}
+    else{ await sheetsErrorFrom(r, 'create'); }
+  }catch(e){ console.error('[Sheets] create threw:', e); }
   return '';
+}
+
+async function sheetsErrorFrom(r, context){
+  let detail = '';
+  try{ const d = await r.json(); detail = d.error && d.error.message || ''; }catch(e){}
+  console.error(`[Sheets] ${context} failed: HTTP ${r.status}${detail ? ' — ' + detail : ''}`);
+  const el = document.getElementById('sheet-status');
+  if(el){
+    el.style.display='inline';
+    el.innerHTML = `<span style="color:var(--germank)" title="${(detail||'').replace(/"/g,'&quot;')}">⚠ Sheet error ${r.status}</span>`;
+  }
 }
 
 async function sheetsLoad(){
@@ -863,14 +875,14 @@ async function sheetsLoad(){
       headers:{'Authorization':'Bearer '+gcalToken}
     });
     if(r.status===401){ gcalToken=null; updateGCalUI(); return false; }
-    if(!r.ok) return false;
+    if(!r.ok){ await sheetsErrorFrom(r, 'load'); return false; }
     const d = await r.json();
     if(d.values && d.values[0] && d.values[0][0]){
       const data = JSON.parse(d.values[0][0]);
       Object.keys(data).forEach(k=>{ try{ localStorage.setItem(k, data[k]); }catch(ex){} });
       return true;
     }
-  }catch(e){}
+  }catch(e){ console.error('[Sheets] load threw:', e); }
   return false;
 }
 
@@ -896,7 +908,8 @@ function sheetsSave(){
       });
       if(r.status===401){ gcalToken=null; updateGCalUI(); }
       else if(r.ok){ updateSheetUI(sid, true); }
-    }catch(e){}
+      else{ await sheetsErrorFrom(r, 'save'); }
+    }catch(e){ console.error('[Sheets] save threw:', e); }
   }, 1500);
 }
 
